@@ -8,7 +8,7 @@ import com.cognixia.javafuturehorizons.capstone.exception.UserNotFoundException;
 
 import java.sql.SQLException;
 
-public interface exception {
+public interface Dao {
   public void establishConnection() throws SQLException;
 
   public void closeConnection() throws SQLException;
