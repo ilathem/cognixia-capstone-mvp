@@ -10,6 +10,13 @@ import com.cognixia.javafuturehorizons.capstone.model.User;
 
 import java.sql.SQLException;
 
+/* 
+ * Dao interface for the Tracker application.
+ * This interface defines the methods for interacting with the database,
+ * including user and book management, progress tracking, and rating functionality.
+ * 
+ * This is concerned with the "how" of data access, not the "what" or "why".
+ */
 public interface Dao {
   public void establishConnection() throws SQLException;
 
