@@ -30,6 +30,7 @@ This document is for recording my plans for this project.
   - FK user_id
   - FK book_id
   - Progress
+  - Rating
 
 ## Custom Exceptions
 

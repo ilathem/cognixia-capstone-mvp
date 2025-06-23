@@ -1,8 +1,8 @@
 package com.cognixia.javafuturehorizons.capstone.exception;
 
-public class UserNotFound extends Exception {
+public class UserNotFoundException extends Exception {
 
-    public UserNotFound(String username) {
+    public UserNotFoundException(String username) {
         super("The user '" + username + "' does not exist.");
     }
 
