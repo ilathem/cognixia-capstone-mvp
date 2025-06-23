@@ -18,10 +18,14 @@ This document is for recording my plans for this project.
   - PK: user_id 
   - Name
   - Password
-  - FK link to their own tracker
+  - Clearance: 
+    - level 0: only access to their own tracker
+    - level 1: can change book table (admin)
 - Book table: stores all the books available to track
   - PK: book_id
   - Name
+  - Author
+  - Number of pages
 - Tracker table: maps user to book with progress
   - FK user_id
   - FK book_id
