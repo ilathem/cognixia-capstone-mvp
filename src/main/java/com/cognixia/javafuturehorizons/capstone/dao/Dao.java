@@ -57,6 +57,9 @@ public interface Dao {
 
   // rate book
   public boolean rateBook(User user, Book book, int rating) throws SQLException, UserNotFoundException, BookNotFoundException;
+  
+  // get user rating for a book
+  public Optional<Integer> getUserRating(User user, Book book) throws SQLException, UserNotFoundException, BookNotFoundException;
 
   // get average rating of a book
   public Optional<Double> getAverageRating(Book book) throws SQLException, BookNotFoundException;
