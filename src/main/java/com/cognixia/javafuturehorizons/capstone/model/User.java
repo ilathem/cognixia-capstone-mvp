@@ -6,13 +6,19 @@ public class User {
   private String name;
   private String password;
 
+  public User(int clearance, String name, String password) {
+    this.clearance = clearance;
+    this.name = name;
+    this.password = password;
+  }
+
   public User(int userId, int clearance, String name, String password) {
     this.userId = userId;
     this.clearance = clearance;
     this.name = name;
     this.password = password;
   }
-
+  
   public int getUserId() {
     return userId;
   }
