@@ -1,10 +1,12 @@
-package com.cognixia.javafuturehorizons.capstone.model;
+package com.cognixia.javafuturehorizons.capstone.dao;
 
 import java.util.Map;
 import java.util.Optional;
 
 import com.cognixia.javafuturehorizons.capstone.exception.BookNotFoundException;
 import com.cognixia.javafuturehorizons.capstone.exception.UserNotFoundException;
+import com.cognixia.javafuturehorizons.capstone.model.Book;
+import com.cognixia.javafuturehorizons.capstone.model.User;
 
 import java.sql.SQLException;
 
