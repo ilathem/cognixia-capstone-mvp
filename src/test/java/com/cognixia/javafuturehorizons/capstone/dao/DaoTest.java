@@ -21,7 +21,7 @@ public class DaoTest {
   private static Dao dao;
 
   @BeforeAll
-  public static void beforeAll() throws SQLException {
+  public static void beforeAll() throws SQLException, ClassNotFoundException {
     // This method can be used to set up any static resources needed for the tests
     // For example, initializing a database connection pool or loading test data
     dao = new DaoImpl();
@@ -72,9 +72,11 @@ public class DaoTest {
   @AfterEach
   public void afterEach() throws Exception {
     try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
+      stmt.executeUpdate("set foreign_key_checks = 0");
       stmt.executeUpdate("truncate table books");
-      stmt.executeUpdate("truncate table trackers");
       stmt.executeUpdate("truncate table users");
+      stmt.executeUpdate("truncate table trackers");
+      stmt.executeUpdate("set foreign_key_checks = 1");
     } catch (SQLException e) {
       throw new RuntimeException("Error tearing down test environment", e);
     }

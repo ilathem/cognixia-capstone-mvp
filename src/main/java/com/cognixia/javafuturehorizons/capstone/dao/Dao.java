@@ -18,7 +18,7 @@ import java.sql.SQLException;
  * This is concerned with the "how" of data access, not the "what" or "why".
  */
 public interface Dao {
-  public void establishConnection() throws SQLException;
+  public void establishConnection() throws SQLException, ClassNotFoundException;
 
   public void closeConnection() throws SQLException;
 
