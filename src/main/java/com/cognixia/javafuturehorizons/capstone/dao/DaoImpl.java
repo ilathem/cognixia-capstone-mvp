@@ -100,8 +100,18 @@ public class DaoImpl implements Dao {
 
   @Override
   public boolean updateBook(Book book) throws SQLException, BookNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'updateBook'");
+    String sql = "UPDATE books SET title = ?, author = ?, num_pages = ? WHERE book_id = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setString(1, book.getTitle());
+    stmt.setString(2, book.getAuthor());
+    stmt.setInt(3, book.getNumPages());
+    stmt.setInt(4, book.getBookId());
+    int rowsAffected = stmt.executeUpdate();
+    if (rowsAffected > 0) {
+      return true;
+    } else {
+      throw new BookNotFoundException("Book with ID " + book.getBookId() + " not found.");
+    }
   }
 
   @Override
