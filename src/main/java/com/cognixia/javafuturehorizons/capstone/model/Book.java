@@ -60,4 +60,19 @@ public class Book {
         ", numPages=" + numPages +
         '}';
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    Book book = (Book) o;
+    return bookId == book.bookId;
+  }
+
+  @Override
+  public int hashCode() {
+    return Integer.hashCode(bookId);
+  }
 }
