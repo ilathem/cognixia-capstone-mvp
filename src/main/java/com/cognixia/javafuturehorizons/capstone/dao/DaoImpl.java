@@ -61,12 +61,11 @@ public class DaoImpl implements Dao {
           resultSet.getInt("user_id"),
           resultSet.getInt("clearance"),
           resultSet.getString("name"),
-          resultSet.getString("password")
-      );
+          resultSet.getString("password"));
       return Optional.of(user);
     } else {
       throw new UserNotFoundException("User with ID " + userId + " not found.");
-    } 
+    }
   }
 
   @Override
@@ -80,12 +79,11 @@ public class DaoImpl implements Dao {
           resultSet.getInt("book_id"),
           resultSet.getString("title"),
           resultSet.getString("author"),
-          resultSet.getInt("num_pages")
-      );
+          resultSet.getInt("num_pages"));
       return Optional.of(book);
-    } else {  
+    } else {
       throw new BookNotFoundException("Book with ID " + bookId + " not found.");
-    } 
+    }
   }
 
   @Override
@@ -132,8 +130,8 @@ public class DaoImpl implements Dao {
   public Map<Book, Integer> getUserProgress(User user) throws SQLException, UserNotFoundException {
     Map<Book, Integer> progressMap = new HashMap<>();
     String sql = "SELECT b.book_id, b.title, b.author, b.num_pages, t.progress " +
-                 "FROM books b JOIN trackers t ON b.book_id = t.book_id " +
-                 "WHERE t.user_id = ?";
+        "FROM books b JOIN trackers t ON b.book_id = t.book_id " +
+        "WHERE t.user_id = ?";
     PreparedStatement stmt = connection.prepareStatement(sql);
     stmt.setInt(1, user.getUserId());
     var resultSet = stmt.executeQuery();
@@ -142,8 +140,7 @@ public class DaoImpl implements Dao {
           resultSet.getInt("book_id"),
           resultSet.getString("title"),
           resultSet.getString("author"),
-          resultSet.getInt("num_pages")
-      );
+          resultSet.getInt("num_pages"));
       int progress = resultSet.getInt("progress");
       progressMap.put(book, progress);
       System.out.println("Book: " + book.getTitle() + ", Progress: " + progress);
@@ -168,8 +165,8 @@ public class DaoImpl implements Dao {
   @Override
   public Map<User, Integer> getAllUsersProgress(Book book) throws SQLException, BookNotFoundException {
     String sql = "SELECT u.user_id, u.name, t.progress " +
-                 "FROM users u JOIN trackers t ON u.user_id = t.user_id " +
-                 "WHERE t.book_id = ?";
+        "FROM users u JOIN trackers t ON u.user_id = t.user_id " +
+        "WHERE t.book_id = ?";
     PreparedStatement stmt = connection.prepareStatement(sql);
     stmt.setInt(1, book.getBookId());
     var resultSet = stmt.executeQuery();
@@ -177,8 +174,7 @@ public class DaoImpl implements Dao {
     while (resultSet.next()) {
       User user = new User(
           resultSet.getInt("user_id"),
-          resultSet.getString("name")
-      );
+          resultSet.getString("name"));
       int progress = resultSet.getInt("progress");
       userProgressMap.put(user, progress);
     }
