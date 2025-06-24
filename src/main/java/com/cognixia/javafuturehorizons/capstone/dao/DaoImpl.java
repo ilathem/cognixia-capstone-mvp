@@ -116,8 +116,15 @@ public class DaoImpl implements Dao {
 
   @Override
   public boolean deleteBook(Book book) throws SQLException, BookNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'deleteBook'");
+    String sql = "DELETE FROM books WHERE book_id = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setInt(1, book.getBookId());
+    int rowsAffected = stmt.executeUpdate();
+    if (rowsAffected > 0) {
+      return true;
+    } else {
+      throw new BookNotFoundException("Book with ID " + book.getBookId() + " not found.");
+    }
   }
 
   @Override
