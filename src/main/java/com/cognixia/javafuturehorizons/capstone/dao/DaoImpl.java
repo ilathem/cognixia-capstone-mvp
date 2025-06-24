@@ -70,8 +70,21 @@ public class DaoImpl implements Dao {
 
   @Override
   public Optional<Book> getBookById(int bookId) throws SQLException, BookNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getBookById'");
+    String sql = "SELECT * FROM books WHERE book_id = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setInt(1, bookId);
+    var resultSet = stmt.executeQuery();
+    if (resultSet.next()) {
+      Book book = new Book(
+          resultSet.getInt("book_id"),
+          resultSet.getString("title"),
+          resultSet.getString("author"),
+          resultSet.getInt("num_pages")
+      );
+      return Optional.of(book);
+    } else {  
+      throw new BookNotFoundException("Book with ID " + bookId + " not found.");
+    } 
   }
 
   @Override
