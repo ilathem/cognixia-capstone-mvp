@@ -196,19 +196,25 @@ public class DaoTest {
   }
 
   @Test
-  public void testUpdateProgress() throws SQLException, UserNotFoundException, BookNotFoundException {
-    User user = new User(0, "TestUser", "password");
-    Book book = dao.getBookById(1).get();
-    dao.updateProgress(user, book, book.getNumPages() / 2);
+  public void testUpdateProgress() throws SQLException, UserNotFoundException, BookNotFoundException, ClassNotFoundException {
+    User user = new User(1, 0, "TestUser", "password");
+    Book book = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
+    try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
+      stmt.executeUpdate("insert into users (name, password) values ('TestUser', 'password')");
+      stmt.executeUpdate("insert into trackers (user_id, book_id, progress) values (1, 1, 0)");
+    } catch (SQLException e) {
+      throw new RuntimeException("Error setting up test environment", e);
+    }
+    dao.updateProgress(user, book, 5);
     Optional<Integer> progress = dao.getUserProgress(user, book);
     assertTrue(progress.isPresent());
-    assertEquals(book.getNumPages() / 2, progress.get().intValue());
+    assertEquals(5, progress.get().intValue());
   }
 
   @Test
   public void testRateBook() throws SQLException, UserNotFoundException, BookNotFoundException {
-    User user = new User(0, "TestUser", "password");
-    Book book = dao.getBookById(1).get();
+    User user = new User(1, 0, "TestUser", "password");
+    Book book = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
     boolean result = dao.rateBook(user, book, 5);
     assertTrue(result);
     Optional<Integer> rating = dao.getUserRating(user, book);
