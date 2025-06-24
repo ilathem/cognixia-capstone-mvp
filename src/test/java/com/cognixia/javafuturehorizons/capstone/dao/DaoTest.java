@@ -150,22 +150,25 @@ public class DaoTest {
     Map<Book, Integer> progress = dao.getUserProgress(user);
     Map<Book, Integer> expectedProgress = Map.of(
         book1, book1.getNumPages() / 2,
-        book2, book2.getNumPages() / 2
-    );
+        book2, book2.getNumPages() / 2);
     assertEquals(expectedProgress, progress);
   }
 
   @Test
-  public void testGetUserProgressForSpecificBook() throws SQLException, UserNotFoundException, BookNotFoundException {
-    User user = new User(0, "TestUser", "password");
-    Book book1 = dao.getBookById(1).get();
-    Book book2 = dao.getBookById(2).get();
-    dao.updateProgress(user, book1, book1.getNumPages() / 2);
-    dao.updateProgress(user, book2, book2.getNumPages() / 2);
-    Integer progress = dao.getUserProgress(user, book1).get();
-    assertEquals(book1.getNumPages() / 2, progress.intValue());
+  public void testGetUserProgressForSpecificBook()
+      throws ClassNotFoundException, SQLException, UserNotFoundException, BookNotFoundException {
+    User user = new User(1, 0, "TestUser", "password");
+    Book book = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
+    try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
+      stmt.executeUpdate("insert into users (name, password) values ('TestUser', 'password')");
+      stmt.executeUpdate("insert into trackers (user_id, book_id, progress) values (1, 1, 5)");
+    } catch (SQLException e) {
+      throw new RuntimeException("Error setting up test environment", e);
+    }
+    Integer progress = dao.getUserProgress(user, book).get();
+    assertEquals(5, progress.intValue());
   }
-  
+
   @Test
   public void testGetAllUsersProgressForBook() throws SQLException, BookNotFoundException, UserNotFoundException {
     Book book = dao.getBookById(1).get();
@@ -178,8 +181,7 @@ public class DaoTest {
     Map<User, Integer> progress = dao.getAllUsersProgress(book);
     Map<User, Integer> expectedProgress = Map.of(
         user1, book.getNumPages() / 2,
-        user2, book.getNumPages() / 4
-    );
+        user2, book.getNumPages() / 4);
     assertEquals(expectedProgress, progress);
   }
 
@@ -190,7 +192,7 @@ public class DaoTest {
     dao.updateProgress(user, book, book.getNumPages() / 2);
     Optional<Integer> progress = dao.getUserProgress(user, book);
     assertTrue(progress.isPresent());
-    assertEquals(book.getNumPages() / 2, progress.get().intValue());  
+    assertEquals(book.getNumPages() / 2, progress.get().intValue());
   }
 
   @Test
@@ -201,7 +203,7 @@ public class DaoTest {
     assertTrue(result);
     Optional<Integer> rating = dao.getUserRating(user, book);
     assertTrue(rating.isPresent());
-    assertEquals(5, rating.get().intValue()); 
+    assertEquals(5, rating.get().intValue());
   }
 
   @Test
