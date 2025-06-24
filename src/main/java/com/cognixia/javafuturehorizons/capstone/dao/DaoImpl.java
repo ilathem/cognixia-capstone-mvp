@@ -51,8 +51,21 @@ public class DaoImpl implements Dao {
 
   @Override
   public Optional<User> getUserById(int userId) throws SQLException, UserNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getUserById'");
+    String sql = "SELECT * FROM users WHERE user_id = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setInt(1, userId);
+    var resultSet = stmt.executeQuery();
+    if (resultSet.next()) {
+      User user = new User(
+          resultSet.getInt("user_id"),
+          resultSet.getInt("clearance"),
+          resultSet.getString("name"),
+          resultSet.getString("password")
+      );
+      return Optional.of(user);
+    } else {
+      throw new UserNotFoundException("User with ID " + userId + " not found.");
+    } 
   }
 
   @Override
