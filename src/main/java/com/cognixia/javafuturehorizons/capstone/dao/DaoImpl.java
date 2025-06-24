@@ -89,8 +89,13 @@ public class DaoImpl implements Dao {
 
   @Override
   public boolean addBook(Book book) throws SQLException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'addBook'");
+    String sql = "INSERT INTO books (title, author, num_pages) VALUES (?, ?, ?)";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setString(1, book.getTitle());
+    stmt.setString(2, book.getAuthor());
+    stmt.setInt(3, book.getNumPages());
+    int rowsAffected = stmt.executeUpdate();
+    return rowsAffected > 0;
   }
 
   @Override
