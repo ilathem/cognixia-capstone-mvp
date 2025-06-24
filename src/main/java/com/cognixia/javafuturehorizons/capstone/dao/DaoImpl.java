@@ -42,8 +42,11 @@ public class DaoImpl implements Dao {
 
   @Override
   public boolean deleteUser(User user) throws SQLException, UserNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+    String sql = "DELETE FROM users WHERE name = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setString(1, user.getName());
+    int rowsAffected = stmt.executeUpdate();
+    return rowsAffected > 0;
   }
 
   @Override
