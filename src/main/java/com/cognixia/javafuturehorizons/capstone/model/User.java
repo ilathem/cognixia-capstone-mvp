@@ -18,7 +18,12 @@ public class User {
     this.name = name;
     this.password = password;
   }
-  
+
+  public User(int userId, String name) {
+    this.userId = userId;
+    this.name = name;
+  }
+
   public int getUserId() {
     return userId;
   }
@@ -59,5 +64,20 @@ public class User {
         ", name='" + name + '\'' +
         ", password='" + password + '\'' +
         '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    User user = (User) o;
+    return userId == user.userId;
+  }
+
+  @Override
+  public int hashCode() {
+    return Integer.hashCode(userId);
   }
 }

@@ -53,7 +53,7 @@ public interface Dao {
   public Map<User, Integer> getAllUsersProgress(Book book) throws SQLException, BookNotFoundException;
 
   // update tracker progress
-  public boolean updateProgress(User user, Book book, int progress) throws SQLException, UserNotFoundException, BookNotFoundException;
+  public boolean updateProgress(User user, Book book, int progress) throws SQLException;
 
   // rate book
   public boolean rateBook(User user, Book book, int rating) throws SQLException, UserNotFoundException, BookNotFoundException;

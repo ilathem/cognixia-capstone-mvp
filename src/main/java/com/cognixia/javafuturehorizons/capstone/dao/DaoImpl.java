@@ -3,6 +3,7 @@ package com.cognixia.javafuturehorizons.capstone.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -129,27 +130,70 @@ public class DaoImpl implements Dao {
 
   @Override
   public Map<Book, Integer> getUserProgress(User user) throws SQLException, UserNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getUserProgress'");
+    Map<Book, Integer> progressMap = new HashMap<>();
+    String sql = "SELECT b.book_id, b.title, b.author, b.num_pages, t.progress " +
+                 "FROM books b JOIN trackers t ON b.book_id = t.book_id " +
+                 "WHERE t.user_id = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setInt(1, user.getUserId());
+    var resultSet = stmt.executeQuery();
+    while (resultSet.next()) {
+      Book book = new Book(
+          resultSet.getInt("book_id"),
+          resultSet.getString("title"),
+          resultSet.getString("author"),
+          resultSet.getInt("num_pages")
+      );
+      int progress = resultSet.getInt("progress");
+      progressMap.put(book, progress);
+      System.out.println("Book: " + book.getTitle() + ", Progress: " + progress);
+    }
+    return progressMap;
   }
 
   @Override
   public Optional<Integer> getUserProgress(User user, Book book) throws SQLException, UserNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getUserProgress'");
+    String sql = "select progress from trackers where user_id = ? and book_id = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setInt(1, user.getUserId());
+    stmt.setInt(2, book.getBookId());
+    var resultSet = stmt.executeQuery();
+    if (resultSet.next()) {
+      int progress = resultSet.getInt("progress");
+      return Optional.of(progress);
+    }
+    return Optional.empty();
   }
 
   @Override
   public Map<User, Integer> getAllUsersProgress(Book book) throws SQLException, BookNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getAllUsersProgress'");
+    String sql = "SELECT u.user_id, u.name, t.progress " +
+                 "FROM users u JOIN trackers t ON u.user_id = t.user_id " +
+                 "WHERE t.book_id = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setInt(1, book.getBookId());
+    var resultSet = stmt.executeQuery();
+    Map<User, Integer> userProgressMap = new HashMap<>();
+    while (resultSet.next()) {
+      User user = new User(
+          resultSet.getInt("user_id"),
+          resultSet.getString("name")
+      );
+      int progress = resultSet.getInt("progress");
+      userProgressMap.put(user, progress);
+    }
+    return userProgressMap;
   }
 
   @Override
-  public boolean updateProgress(User user, Book book, int progress)
-      throws SQLException, UserNotFoundException, BookNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'updateProgress'");
+  public boolean updateProgress(User user, Book book, int progress) throws SQLException {
+    String sql = "UPDATE trackers SET progress = ? WHERE user_id = ? AND book_id = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setInt(1, progress);
+    stmt.setInt(2, user.getUserId());
+    stmt.setInt(3, book.getBookId());
+    int rowsAffected = stmt.executeUpdate();
+    return rowsAffected > 0;
   }
 
   @Override
