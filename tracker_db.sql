@@ -25,7 +25,7 @@ create table
     user_id int not null,
     book_id int not null,
     progress int not null default 0,
-    rating int not null,
+    rating int not null default 0,
     primary key (user_id, book_id),
     foreign key (user_id) references users (user_id),
     foreign key (book_id) references books (book_id)
