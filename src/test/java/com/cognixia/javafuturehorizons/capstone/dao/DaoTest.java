@@ -141,16 +141,22 @@ public class DaoTest {
   }
 
   @Test
-  public void testGetUserProgressForAllBooks() throws SQLException, UserNotFoundException, BookNotFoundException {
-    User user = new User(0, "TestUser", "password");
-    Book book1 = dao.getBookById(1).get();
-    Book book2 = dao.getBookById(2).get();
-    dao.updateProgress(user, book1, book1.getNumPages() / 2);
-    dao.updateProgress(user, book2, book2.getNumPages() / 2);
+  public void testGetUserProgressForAllBooks()
+      throws SQLException, UserNotFoundException, BookNotFoundException, ClassNotFoundException {
+    User user = new User(1, 0, "TestUser", "password");
+    Book book1 = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
+    Book book2 = new Book(2, "The Republic", "Plato", 416);
+    try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
+      stmt.executeUpdate("insert into users (name, password) values ('TestUser', 'password')");
+      stmt.executeUpdate("insert into trackers (user_id, book_id, progress) values (1, 1, 3)");
+      stmt.executeUpdate("insert into trackers (user_id, book_id, progress) values (1, 2, 3)");
+    } catch (SQLException e) {
+      throw new RuntimeException("Error setting up test environment", e);
+    }
     Map<Book, Integer> progress = dao.getUserProgress(user);
     Map<Book, Integer> expectedProgress = Map.of(
-        book1, book1.getNumPages() / 2,
-        book2, book2.getNumPages() / 2);
+        book1, 3,
+        book2, 3);
     assertEquals(expectedProgress, progress);
   }
 
