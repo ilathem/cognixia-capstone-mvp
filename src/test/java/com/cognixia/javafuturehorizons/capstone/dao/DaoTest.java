@@ -215,6 +215,7 @@ public class DaoTest {
   public void testRateBook() throws SQLException, UserNotFoundException, BookNotFoundException {
     User user = new User(1, 0, "TestUser", "password");
     Book book = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
+    dao.createUser(user);
     boolean result = dao.rateBook(user, book, 5);
     assertTrue(result);
     Optional<Integer> rating = dao.getUserRating(user, book);
@@ -225,8 +226,10 @@ public class DaoTest {
   @Test
   public void testGetAverageRating() throws SQLException, BookNotFoundException, UserNotFoundException {
     Book book = dao.getBookById(1).get();
-    User user1 = new User(0, "User1", "password");
-    User user2 = new User(0, "User2", "password");
+    User user1 = new User(1, 0, "User1", "password");
+    User user2 = new User(2, 0, "User2", "password");
+    dao.createUser(user1);
+    dao.createUser(user2);
     dao.rateBook(user1, book, 5);
     dao.rateBook(user2, book, 3);
     Optional<Double> averageRating = dao.getAverageRating(book);
