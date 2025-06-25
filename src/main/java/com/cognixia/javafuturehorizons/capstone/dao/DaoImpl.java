@@ -16,6 +16,18 @@ import com.cognixia.javafuturehorizons.capstone.model.User;
 public class DaoImpl implements Dao {
 
   private Connection connection = null;
+  private static DaoImpl instance;
+
+  private DaoImpl() throws SQLException, ClassNotFoundException {
+    establishConnection();
+  }
+
+  public static DaoImpl getInstance() throws ClassNotFoundException, SQLException {
+    if (instance == null) {
+      instance = new DaoImpl();
+    }
+    return instance;
+  }
 
   @Override
   public void establishConnection() throws SQLException, ClassNotFoundException {

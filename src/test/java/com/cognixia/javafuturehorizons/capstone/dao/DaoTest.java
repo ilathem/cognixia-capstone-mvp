@@ -24,7 +24,7 @@ public class DaoTest {
   public static void beforeAll() throws SQLException, ClassNotFoundException {
     // This method can be used to set up any static resources needed for the tests
     // For example, initializing a database connection pool or loading test data
-    dao = new DaoImpl();
+    dao = DaoImpl.getInstance();
     dao.establishConnection();
   }
 
