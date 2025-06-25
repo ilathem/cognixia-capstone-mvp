@@ -194,22 +194,48 @@ public class DaoImpl implements Dao {
 
   @Override
   public boolean rateBook(User user, Book book, int rating)
-      throws SQLException, UserNotFoundException, BookNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'rateBook'");
+      throws SQLException {
+      String sql = "INSERT INTO trackers (user_id, book_id, rating) VALUES (?, ?, ?) " +
+          "ON DUPLICATE KEY UPDATE rating = ?";
+      PreparedStatement stmt = connection.prepareStatement(sql);
+      stmt.setInt(1, user.getUserId());
+      stmt.setInt(2, book.getBookId());
+      stmt.setInt(3, rating);
+      stmt.setInt(4, rating);
+      int rowsAffected = stmt.executeUpdate();
+      if (rowsAffected > 0) {
+        return true;
+      } else {
+        throw new SQLException("Failed to rate book. User or book not found.");
+      }
   }
 
   @Override
   public Optional<Double> getAverageRating(Book book) throws SQLException, BookNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getAverageRating'");
+    String sql = "SELECT AVG(rating) AS average_rating FROM trackers WHERE book_id = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setInt(1, book.getBookId());
+    var resultSet = stmt.executeQuery();
+    if (resultSet.next()) {
+      double averageRating = resultSet.getDouble("average_rating");
+      return Optional.of(averageRating);
+    }
+    return Optional.empty();
   }
 
   @Override
   public Optional<Integer> getUserRating(User user, Book book)
-      throws SQLException, UserNotFoundException, BookNotFoundException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getUserRating'");
+      throws SQLException {
+      String sql = "SELECT rating FROM trackers WHERE user_id = ? AND book_id = ?";
+      PreparedStatement stmt = connection.prepareStatement(sql);
+      stmt.setInt(1, user.getUserId());
+      stmt.setInt(2, book.getBookId());
+      var resultSet = stmt.executeQuery();
+      if (resultSet.next()) {
+        int rating = resultSet.getInt("rating");
+        return Optional.of(rating);
+      }
+      return Optional.empty();
   }
 
 }

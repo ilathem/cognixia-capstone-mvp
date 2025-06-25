@@ -56,7 +56,7 @@ public interface Dao {
   public boolean updateProgress(User user, Book book, int progress) throws SQLException;
 
   // rate book
-  public boolean rateBook(User user, Book book, int rating) throws SQLException, UserNotFoundException, BookNotFoundException;
+  public boolean rateBook(User user, Book book, int rating) throws SQLException;
   
   // get user rating for a book
   public Optional<Integer> getUserRating(User user, Book book) throws SQLException, UserNotFoundException, BookNotFoundException;
