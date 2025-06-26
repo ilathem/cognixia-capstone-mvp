@@ -85,8 +85,8 @@ public class DaoTest {
   @Test
   public void testCreateUser() throws SQLException, UserNotFoundException {
     User user = new User(0, "TestUser", "password");
-    boolean result = dao.createUser(user);
-    assertTrue(result);
+    User result = dao.createUser(user);
+    assertTrue(user.getName().equals(result.getName()) && user.getPassword().equals(result.getPassword()));
   }
 
   @Test
@@ -104,6 +104,15 @@ public class DaoTest {
     Optional<User> retrievedUser = dao.getUserById(1);
     assertTrue(retrievedUser.isPresent());
     assertEquals(user.getName(), retrievedUser.get().getName());
+  }
+
+  @Test
+  public void testValidateUser() throws SQLException {
+    User user = new User(0, "TestUser", "password");
+    dao.createUser(user);
+    Optional<User> validatedUser = dao.validateUser("TestUser", "password");
+    assertTrue(validatedUser.isPresent());
+    assertEquals(user.getName(), validatedUser.get().getName());
   }
 
   @Test

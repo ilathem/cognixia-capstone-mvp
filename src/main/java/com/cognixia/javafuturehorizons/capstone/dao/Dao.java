@@ -23,13 +23,16 @@ public interface Dao {
   public void closeConnection() throws SQLException;
 
   // create user
-  public boolean createUser(User user) throws SQLException;
+  public User createUser(User user) throws SQLException;
 
   // delete user
   public boolean deleteUser(User user) throws SQLException, UserNotFoundException;
   
   // get user by userId
   public Optional<User> getUserById(int userId) throws SQLException, UserNotFoundException;
+  
+  // validate user credentials
+  public Optional<User> validateUser(String username, String password) throws SQLException;
 
   // get book by bookId
   public Optional<Book> getBookById(int bookId) throws SQLException, BookNotFoundException;

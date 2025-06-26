@@ -1,10 +1,12 @@
 package com.cognixia.javafuturehorizons.capstone;
 
+import com.cognixia.javafuturehorizons.capstone.controller.Controller;
+
 /**
  * Hello world!
  */
 public class App {
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        Controller.getInstance().start();
     }
 }

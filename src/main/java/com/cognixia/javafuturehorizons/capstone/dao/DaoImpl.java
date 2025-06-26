@@ -43,14 +43,13 @@ public class DaoImpl implements Dao {
   }
 
   @Override
-  public boolean createUser(User user) throws SQLException {
-    String sql = "INSERT INTO users (name, password, clearance) VALUES (?, ?, ?)";
+  public User createUser(User user) throws SQLException {
+    String sql = "INSERT INTO users (name, password) VALUES (?, ?)";
     PreparedStatement stmt = connection.prepareStatement(sql);
     stmt.setString(1, user.getName());
     stmt.setString(2, user.getPassword());
-    stmt.setInt(3, user.getClearance());
-    int rowsAffected = stmt.executeUpdate();
-    return rowsAffected > 0;
+    stmt.executeUpdate();
+    return this.validateUser(user.getName(), user.getPassword()).get();
   }
 
   @Override
@@ -78,6 +77,24 @@ public class DaoImpl implements Dao {
     } else {
       throw new UserNotFoundException("User with ID " + userId + " not found.");
     }
+  }
+
+  @Override
+  public Optional<User> validateUser(String username, String password) throws SQLException {
+    String sql = "SELECT * FROM users WHERE name = ? AND password = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setString(1, username);
+    stmt.setString(2, password);
+    var resultSet = stmt.executeQuery();
+    if (resultSet.next()) {
+      User user = new User(
+          resultSet.getInt("user_id"),
+          resultSet.getInt("clearance"),
+          resultSet.getString("name"),
+          resultSet.getString("password"));
+      return Optional.of(user);
+    }
+    return Optional.empty();
   }
 
   @Override

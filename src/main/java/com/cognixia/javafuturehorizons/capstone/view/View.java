@@ -41,6 +41,10 @@ public class View {
       System.out.println(label + ": " + data.toString());
     });
   }
+  
+  public void printMessage(String message) {
+    System.out.println(message);
+  }
 
   public String getUserInput(String prompt) {
     if (!prompt.isEmpty())
@@ -49,7 +53,6 @@ public class View {
   }
 
   public void printMenu(String[] options) {
-    System.out.println("Welcome to the Tracker Application!");
     System.out.println("Please select an option:");
     for (int i = 0; i < options.length; i++) {
       System.out.println((i + 1) + ". " + options[i]);
@@ -60,8 +63,8 @@ public class View {
     printMenu(options);
     String choice = getUserInput("Enter your choice (1-" + options.length + "): ");
     try {
-      int index = Integer.parseInt(choice) - 1;
-      if (index < 0 || index >= options.length) {
+      int index = Integer.parseInt(choice);
+      if (index < 1 || index > options.length) {
         System.out.println("Invalid choice. Please try again.");
         return getUserMenuChoice(options);
       }

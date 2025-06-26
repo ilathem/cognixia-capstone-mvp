@@ -8,6 +8,7 @@ import com.cognixia.javafuturehorizons.capstone.dao.Dao;
 import com.cognixia.javafuturehorizons.capstone.dao.DaoImpl;
 import com.cognixia.javafuturehorizons.capstone.exception.BookNotFoundException;
 import com.cognixia.javafuturehorizons.capstone.exception.UserNotFoundException;
+import com.cognixia.javafuturehorizons.capstone.utils.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -27,9 +28,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class Model {
 
   private static Model instance;
+  private ObjectMapper objectMapper;
 
   private Model() {
     // Private constructor to prevent instantiation
+    this.objectMapper = new ObjectMapper();
   }
 
   public static Model getInstance() {
@@ -40,8 +43,8 @@ public class Model {
   }
 
   public String processRequest(String jsonRequest) {
+    System.out.println("Processing request: " + jsonRequest);
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
       Request request = objectMapper.readValue(jsonRequest, Request.class);
 
       // Process the request
@@ -87,46 +90,52 @@ public class Model {
     // Process the request using the DAO
     switch (request.getAction()) {
       case "createUser": {
-        User newUser = (User) request.getData().get("user");
-        boolean userCreated = dao.createUser(newUser);
-        return userCreated ? new Response("New user created successfully.")
-                           : new Response("Failed to create new user.");
+        User newUser = Utils.getUserFromRequest(request);
+        User userCreated = dao.createUser(newUser);
+        return new Response("User created successfully.", Map.of("user", userCreated));
       }
       case "deleteUser": {
-        User userToDelete = (User) request.getData().get("user");
+        User userToDelete = Utils.getUserFromRequest(request);
         boolean userDeleted = dao.deleteUser(userToDelete);
         return userDeleted ? new Response("User deleted successfully.")
-                           : new Response("Failed to delete user.");
+            : new Response("Failed to delete user.");
       }
       case "getUser": {
         int userId = (int) request.getData().get("userId");
         Optional<User> user = dao.getUserById(userId);
         return user.map(u -> new Response("User retrieved successfully.", Map.of("user", u)))
-                   .orElseGet(() -> new Response("User not found."));
+            .orElseGet(() -> new Response("User not found."));
+      }
+      case "login": {
+        String username = (String) request.getData().get("username");
+        String password = (String) request.getData().get("password");
+        Optional<User> user = dao.validateUser(username, password);
+        return user.map(u -> new Response("Login successful.", Map.of("user", u)))
+            .orElseGet(() -> new Response("Invalid username or password."));
       }
       case "getBook": {
         int bookId = (int) request.getData().get("bookId");
         Optional<Book> book = dao.getBookById(bookId);
         return book.map(b -> new Response("Book retrieved successfully.", Map.of("book", b)))
-                   .orElseGet(() -> new Response("Book not found."));
+            .orElseGet(() -> new Response("Book not found."));
       }
       case "addBook": {
         Book newBook = (Book) request.getData().get("book");
         boolean bookAdded = dao.addBook(newBook);
         return bookAdded ? new Response("Book added successfully.")
-                         : new Response("Failed to add book.");
+            : new Response("Failed to add book.");
       }
       case "updateBook": {
         Book bookToUpdate = (Book) request.getData().get("book");
         boolean bookUpdated = dao.updateBook(bookToUpdate);
         return bookUpdated ? new Response("Book updated successfully.")
-                           : new Response("Failed to update book.");
+            : new Response("Failed to update book.");
       }
       case "deleteBook": {
         Book bookToDelete = (Book) request.getData().get("book");
         boolean bookDeleted = dao.deleteBook(bookToDelete);
         return bookDeleted ? new Response("Book deleted successfully.")
-                           : new Response("Failed to delete book.");
+            : new Response("Failed to delete book.");
       }
       case "getUserProgress": {
         User userForProgress = (User) request.getData().get("user");
@@ -144,7 +153,7 @@ public class Model {
         int newProgress = (int) request.getData().get("progress");
         boolean progressUpdated = dao.updateProgress(userForProgress, bookForUpdate, newProgress);
         return progressUpdated ? new Response("Progress updated successfully.")
-                               : new Response("Failed to update progress.");
+            : new Response("Failed to update progress.");
       }
       case "rateBook": {
         User userForRating = (User) request.getData().get("user");
@@ -152,7 +161,7 @@ public class Model {
         int rating = (int) request.getData().get("rating");
         boolean bookRated = dao.rateBook(userForRating, bookForRating, rating);
         return bookRated ? new Response("Book rated successfully.")
-                         : new Response("Failed to rate book.");
+            : new Response("Failed to rate book.");
       }
       default: {
         throw new UnsupportedOperationException("Unknown action: " + request.getAction());
