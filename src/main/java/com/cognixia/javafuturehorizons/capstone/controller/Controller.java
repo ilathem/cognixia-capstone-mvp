@@ -2,6 +2,8 @@ package com.cognixia.javafuturehorizons.capstone.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.cognixia.javafuturehorizons.capstone.model.Book;
 import com.cognixia.javafuturehorizons.capstone.model.Model;
@@ -118,30 +120,85 @@ public class Controller {
 
   private void showMainMenu() {
     int menuChoice = view.getUserMenuChoice(new String[] {
-      "View My Trackers",
+        "View My Trackers",
+        "Update Tracker Progress",
     });
     switch (menuChoice) {
       case 1:
         showTrackers();
         break;
-    
+      case 2:
+        updateTrackerProgress();
+        break;
+
       default:
         break;
     }
   }
 
   private void showTrackers() {
-    view.printMessage("Displaying trackers for user: " + currentUser.getName());
-    Response response = sendRequest(new Request("getUserProgress", Map.of("user", currentUser)));
-    List<Tracker> trackers = objectMapper.convertValue(
-      response.getData().get("progressMap"),
-      new TypeReference<List<Tracker>>() {}
-    );
-    trackers.forEach(tracker -> {
-      view.printMessage("Book: " + tracker.getBook().getTitle() + 
-        ", Progress: " + tracker.getProgress() + " out of " + tracker.getBook().getNumPages());
+    view.printMessage("\n\nDisplaying trackers for user: " + currentUser.getName());
+    getUserTrackers().forEach(tracker -> {
+      view.printMessage("Book: " + tracker.getBook().getTitle() +
+          ", Progress: " + tracker.getProgress() + " out of " + tracker.getBook().getNumPages());
     });
     showMainMenu();
+  }
+
+  private List<Tracker> getUserTrackers() {
+    Response response = sendRequest(new Request("getUserProgress", Map.of("user", currentUser)));
+    return objectMapper.convertValue(
+        response.getData().get("progressMap"),
+        new TypeReference<List<Tracker>>() {
+        });
+  }
+
+  private List<Book> getAllBooks() {
+    Response response = sendRequest(new Request("getAllBooks", Map.of()));
+    return objectMapper.convertValue(
+        response.getData().get("books"),
+        new TypeReference<List<Book>>() {
+        });
+  }
+
+  private void updateTrackerProgress() {
+    List<Book> books = getAllBooks();
+    List<Tracker> trackers = getUserTrackers();
+    Set<Integer> trackedBookIds = trackers.stream()
+        .map(tracker -> tracker.getBook().getBookId())
+        .collect(Collectors.toSet());
+    books.removeIf(book -> trackedBookIds.contains(book.getBookId()));
+    view.printMessage("\n\nSelect a book to update progress:");
+    view.printMessage("Tracked Books:");
+    trackers.forEach(tracker -> {
+      view.printMessage("Book: " + tracker.getBook().getTitle() +
+          ", Progress: " + tracker.getProgress() + " out of " + tracker.getBook().getNumPages());
+    });
+    view.printMessage("Untracked Books:");
+    books.forEach(book -> {
+      view.printMessage("Book: " + book.getTitle() + ", Author: " + book.getAuthor() +
+          ", Pages: " + book.getNumPages());
+    });
+    String userInput = view.getUserInput("Enter the book title to update progress: ");
+    boolean updatingTracker = trackers.stream().anyMatch(tracker -> tracker.getBook().getTitle().equalsIgnoreCase(userInput) && upsertTrackerProgress(tracker.getBook()));
+    boolean updatingBooks = books.stream().anyMatch(book -> book.getTitle().equalsIgnoreCase(userInput) && upsertTrackerProgress(book));
+    if (!updatingTracker && !updatingBooks) {
+      view.printMessage("There was an error updating progress for " + userInput);
+      updateTrackerProgress();
+    } else {
+      showMainMenu();
+    }
+  }
+
+  private boolean upsertTrackerProgress(Book book) {
+    view.printMessage("\n\nUpdating progress for book: " + book.getTitle());
+    int progress = Integer.parseInt(view.getUserInt("Enter your progress for this book: ", 0, book.getNumPages()));
+    Response response = sendRequest(new Request("updateProgress", Map.of(
+        "user", currentUser,
+        "book", book,
+        "progress", progress)));
+    view.printMessage(response.getMessage());
+    return response.getMessage().contains("success");
   }
 
 }

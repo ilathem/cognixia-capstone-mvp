@@ -101,6 +101,23 @@ public class DaoImpl implements Dao {
   }
 
   @Override
+  public List<Book> getAllBooks() throws SQLException {
+    List<Book> books = new ArrayList<>();
+    String sql = "SELECT * FROM books";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    var resultSet = stmt.executeQuery();
+    while (resultSet.next()) {
+      Book book = new Book(
+          resultSet.getInt("book_id"),
+          resultSet.getString("title"),
+          resultSet.getString("author"),
+          resultSet.getInt("num_pages"));
+      books.add(book);
+    }
+    return books;
+  }
+
+  @Override
   public Optional<Book> getBookById(int bookId) throws SQLException, BookNotFoundException {
     String sql = "SELECT * FROM books WHERE book_id = ?";
     PreparedStatement stmt = connection.prepareStatement(sql);
@@ -214,11 +231,14 @@ public class DaoImpl implements Dao {
 
   @Override
   public boolean updateProgress(User user, Book book, int progress) throws SQLException {
-    String sql = "UPDATE trackers SET progress = ? WHERE user_id = ? AND book_id = ?";
+    String sql = "INSERT INTO trackers (user_id, book_id, progress) VALUES (?, ?, ?) " +
+        "ON DUPLICATE KEY UPDATE progress = ?";
     PreparedStatement stmt = connection.prepareStatement(sql);
-    stmt.setInt(1, progress);
-    stmt.setInt(2, user.getUserId());
-    stmt.setInt(3, book.getBookId());
+    stmt.setInt(1, user.getUserId());
+    stmt.setInt(2, book.getBookId());
+    stmt.setInt(3, progress);
+    stmt.setInt(4, progress);
+    stmt.executeUpdate();
     int rowsAffected = stmt.executeUpdate();
     return rowsAffected > 0;
   }
@@ -226,19 +246,19 @@ public class DaoImpl implements Dao {
   @Override
   public boolean rateBook(User user, Book book, int rating)
       throws SQLException {
-      String sql = "INSERT INTO trackers (user_id, book_id, rating) VALUES (?, ?, ?) " +
-          "ON DUPLICATE KEY UPDATE rating = ?";
-      PreparedStatement stmt = connection.prepareStatement(sql);
-      stmt.setInt(1, user.getUserId());
-      stmt.setInt(2, book.getBookId());
-      stmt.setInt(3, rating);
-      stmt.setInt(4, rating);
-      int rowsAffected = stmt.executeUpdate();
-      if (rowsAffected > 0) {
-        return true;
-      } else {
-        throw new SQLException("Failed to rate book. User or book not found.");
-      }
+    String sql = "INSERT INTO trackers (user_id, book_id, rating) VALUES (?, ?, ?) " +
+        "ON DUPLICATE KEY UPDATE rating = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setInt(1, user.getUserId());
+    stmt.setInt(2, book.getBookId());
+    stmt.setInt(3, rating);
+    stmt.setInt(4, rating);
+    int rowsAffected = stmt.executeUpdate();
+    if (rowsAffected > 0) {
+      return true;
+    } else {
+      throw new SQLException("Failed to rate book. User or book not found.");
+    }
   }
 
   @Override
@@ -257,16 +277,16 @@ public class DaoImpl implements Dao {
   @Override
   public Optional<Integer> getUserRating(User user, Book book)
       throws SQLException {
-      String sql = "SELECT rating FROM trackers WHERE user_id = ? AND book_id = ?";
-      PreparedStatement stmt = connection.prepareStatement(sql);
-      stmt.setInt(1, user.getUserId());
-      stmt.setInt(2, book.getBookId());
-      var resultSet = stmt.executeQuery();
-      if (resultSet.next()) {
-        int rating = resultSet.getInt("rating");
-        return Optional.of(rating);
-      }
-      return Optional.empty();
+    String sql = "SELECT rating FROM trackers WHERE user_id = ? AND book_id = ?";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setInt(1, user.getUserId());
+    stmt.setInt(2, book.getBookId());
+    var resultSet = stmt.executeQuery();
+    if (resultSet.next()) {
+      int rating = resultSet.getInt("rating");
+      return Optional.of(rating);
+    }
+    return Optional.empty();
   }
 
 }

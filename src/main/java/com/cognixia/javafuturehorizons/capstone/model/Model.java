@@ -44,7 +44,7 @@ public class Model {
   }
 
   public String processRequest(String jsonRequest) {
-    System.out.println("Processing request: " + jsonRequest);
+    // System.out.println("Processing request: " + jsonRequest);
     try {
       Request request = objectMapper.readValue(jsonRequest, Request.class);
 
@@ -114,6 +114,10 @@ public class Model {
         return user.map(u -> new Response("Login successful.", Map.of("user", u)))
             .orElseGet(() -> new Response("Invalid username or password."));
       }
+      case "getAllBooks": {
+        List<Book> books = dao.getAllBooks();
+        return new Response("All books retrieved successfully.", Map.of("books", books));
+      }
       case "getBook": {
         int bookId = (int) request.getData().get("bookId");
         Optional<Book> book = dao.getBookById(bookId);
@@ -149,10 +153,18 @@ public class Model {
         return new Response("All users progress retrieved successfully.", Map.of("progressMap", allUsersProgress));
       }
       case "updateProgress": {
-        User userForProgress = (User) request.getData().get("user");
-        Book bookForUpdate = (Book) request.getData().get("book");
+        User userForProgress = objectMapper.convertValue(
+            request.getData().get("user"), User.class);
+        Book bookForUpdate = objectMapper.convertValue(
+            request.getData().get("book"), Book.class);
         int newProgress = (int) request.getData().get("progress");
-        boolean progressUpdated = dao.updateProgress(userForProgress, bookForUpdate, newProgress);
+        boolean progressUpdated = false;
+        try {
+          progressUpdated = dao.updateProgress(userForProgress, bookForUpdate, newProgress);
+        } catch (SQLException e) {
+          e.printStackTrace();
+          return new Response("Database error occurred while updating progress.");
+        }
         return progressUpdated ? new Response("Progress updated successfully.")
             : new Response("Failed to update progress.");
       }

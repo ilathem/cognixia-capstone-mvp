@@ -51,9 +51,24 @@ public class View {
       System.out.print(prompt);
     return scanner.nextLine();
   }
+  
+  public String getUserInt(String prompt, int min, int max) {
+    String input = getUserInput(prompt);
+    try {
+      Integer.parseInt(input);
+      if (Integer.parseInt(input) < min || Integer.parseInt(input) > max) {
+        System.out.println("Input must be between " + min + " and " + max + " (inclusive).");
+        return getUserInt(prompt, min, max);
+      }
+      return input;
+    } catch (NumberFormatException e) {
+      System.out.println("Invalid input. Please enter a valid integer.");
+      return getUserInt(prompt, min, max);
+    }
+  }
 
   public void printMenu(String[] options) {
-    System.out.println("Please select an option:");
+    System.out.println("\n\nPlease select an option:");
     for (int i = 0; i < options.length; i++) {
       System.out.println((i + 1) + ". " + options[i]);
     }

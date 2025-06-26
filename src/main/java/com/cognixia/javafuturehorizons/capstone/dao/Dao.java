@@ -41,6 +41,8 @@ public interface Dao {
 
   // add book to table
   public boolean addBook(Book book) throws SQLException;
+  
+  public List<Book> getAllBooks() throws SQLException;
 
   // update book details
   public boolean updateBook(Book book) throws SQLException, BookNotFoundException;
