@@ -180,8 +180,11 @@ public class Controller {
           ", Pages: " + book.getNumPages());
     });
     String userInput = view.getUserInput("Enter the book title to update progress: ");
-    boolean updatingTracker = trackers.stream().anyMatch(tracker -> tracker.getBook().getTitle().equalsIgnoreCase(userInput) && upsertTrackerProgress(tracker.getBook()));
-    boolean updatingBooks = books.stream().anyMatch(book -> book.getTitle().equalsIgnoreCase(userInput) && upsertTrackerProgress(book));
+    boolean updatingTracker = trackers.stream()
+        .anyMatch(tracker -> tracker.getBook().getTitle().equalsIgnoreCase(userInput)
+            && upsertTrackerProgress(tracker.getBook()));
+    boolean updatingBooks = books.stream()
+        .anyMatch(book -> book.getTitle().equalsIgnoreCase(userInput) && upsertTrackerProgress(book));
     if (!updatingTracker && !updatingBooks) {
       view.printMessage("There was an error updating progress for " + userInput);
       updateTrackerProgress();
