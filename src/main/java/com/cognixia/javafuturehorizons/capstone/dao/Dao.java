@@ -1,11 +1,13 @@
 package com.cognixia.javafuturehorizons.capstone.dao;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import com.cognixia.javafuturehorizons.capstone.exception.BookNotFoundException;
 import com.cognixia.javafuturehorizons.capstone.exception.UserNotFoundException;
 import com.cognixia.javafuturehorizons.capstone.model.Book;
+import com.cognixia.javafuturehorizons.capstone.model.Tracker;
 import com.cognixia.javafuturehorizons.capstone.model.User;
 
 import java.sql.SQLException;
@@ -47,7 +49,7 @@ public interface Dao {
   public boolean deleteBook(Book book) throws SQLException, BookNotFoundException;
 
   // get all tracker progress of a user
-  public Map<Book, Integer> getUserProgress(User user) throws SQLException, UserNotFoundException;
+  public List<Tracker> getUserProgress(User user) throws SQLException, UserNotFoundException;
 
   // get tracker progress of a user for a specific book
   public Optional<Integer> getUserProgress(User user, Book book) throws SQLException, UserNotFoundException;

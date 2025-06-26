@@ -1,6 +1,7 @@
 package com.cognixia.javafuturehorizons.capstone.model;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -138,9 +139,9 @@ public class Model {
             : new Response("Failed to delete book.");
       }
       case "getUserProgress": {
-        User userForProgress = (User) request.getData().get("user");
-        Map<Book, Integer> progressMap = dao.getUserProgress(userForProgress);
-        return new Response("User progress retrieved successfully.", Map.of("progressMap", progressMap));
+        User userForProgress = Utils.getUserFromRequest(request);
+        List<Tracker> progressList = dao.getUserProgress(userForProgress);
+        return new Response("User progress retrieved successfully.", Map.of("progressMap", progressList));
       }
       case "getAllUsersProgress": {
         Book bookForProgress = (Book) request.getData().get("book");

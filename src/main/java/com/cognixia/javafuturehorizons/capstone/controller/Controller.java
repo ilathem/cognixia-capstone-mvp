@@ -1,12 +1,17 @@
 package com.cognixia.javafuturehorizons.capstone.controller;
 
+import java.util.List;
 import java.util.Map;
+
+import com.cognixia.javafuturehorizons.capstone.model.Book;
 import com.cognixia.javafuturehorizons.capstone.model.Model;
 import com.cognixia.javafuturehorizons.capstone.model.Request;
 import com.cognixia.javafuturehorizons.capstone.model.Response;
+import com.cognixia.javafuturehorizons.capstone.model.Tracker;
 import com.cognixia.javafuturehorizons.capstone.model.User;
 import com.cognixia.javafuturehorizons.capstone.utils.Utils;
 import com.cognixia.javafuturehorizons.capstone.view.View;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /*
@@ -112,8 +117,31 @@ public class Controller {
   }
 
   private void showMainMenu() {
-    welcome();
+    int menuChoice = view.getUserMenuChoice(new String[] {
+      "View My Trackers",
+    });
+    switch (menuChoice) {
+      case 1:
+        showTrackers();
+        break;
+    
+      default:
+        break;
+    }
+  }
 
+  private void showTrackers() {
+    view.printMessage("Displaying trackers for user: " + currentUser.getName());
+    Response response = sendRequest(new Request("getUserProgress", Map.of("user", currentUser)));
+    List<Tracker> trackers = objectMapper.convertValue(
+      response.getData().get("progressMap"),
+      new TypeReference<List<Tracker>>() {}
+    );
+    trackers.forEach(tracker -> {
+      view.printMessage("Book: " + tracker.getBook().getTitle() + 
+        ", Progress: " + tracker.getProgress() + " out of " + tracker.getBook().getNumPages());
+    });
+    showMainMenu();
   }
 
 }

@@ -1,6 +1,7 @@
 package com.cognixia.javafuturehorizons.capstone.dao;
 
 import com.cognixia.javafuturehorizons.capstone.model.Book;
+import com.cognixia.javafuturehorizons.capstone.model.Tracker;
 import com.cognixia.javafuturehorizons.capstone.model.User;
 import com.cognixia.javafuturehorizons.capstone.connection.ConnectionManager;
 import com.cognixia.javafuturehorizons.capstone.exception.BookNotFoundException;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
+import java.util.List;
 import java.util.Map;
 
 public class DaoTest {
@@ -162,11 +164,12 @@ public class DaoTest {
     } catch (SQLException e) {
       throw new RuntimeException("Error setting up test environment", e);
     }
-    Map<Book, Integer> progress = dao.getUserProgress(user);
-    Map<Book, Integer> expectedProgress = Map.of(
-        book1, 3,
-        book2, 3);
-    assertEquals(expectedProgress, progress);
+    List<Tracker> progress = dao.getUserProgress(user);
+    List<Tracker> expectedProgress = List.of(
+        new Tracker(book1, 3),
+        new Tracker(book2, 3));
+    assertEquals(expectedProgress.get(0).getProgress(), progress.get(0).getProgress());
+    assertEquals(expectedProgress.get(1).getProgress(), progress.get(1).getProgress());
   }
 
   @Test
@@ -185,7 +188,8 @@ public class DaoTest {
   }
 
   @Test
-  public void testGetAllUsersProgressForBook() throws SQLException, BookNotFoundException, UserNotFoundException, ClassNotFoundException {
+  public void testGetAllUsersProgressForBook()
+      throws SQLException, BookNotFoundException, UserNotFoundException, ClassNotFoundException {
     Book book = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
     User user1 = new User(1, 0, "User1", "password1");
     User user2 = new User(2, 0, "User2", "password2");
@@ -205,7 +209,8 @@ public class DaoTest {
   }
 
   @Test
-  public void testUpdateProgress() throws SQLException, UserNotFoundException, BookNotFoundException, ClassNotFoundException {
+  public void testUpdateProgress()
+      throws SQLException, UserNotFoundException, BookNotFoundException, ClassNotFoundException {
     User user = new User(1, 0, "TestUser", "password");
     Book book = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
     try (Statement stmt = ConnectionManager.getConnection().createStatement()) {

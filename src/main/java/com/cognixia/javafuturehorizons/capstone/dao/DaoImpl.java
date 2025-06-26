@@ -3,7 +3,9 @@ package com.cognixia.javafuturehorizons.capstone.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -11,6 +13,7 @@ import com.cognixia.javafuturehorizons.capstone.connection.ConnectionManager;
 import com.cognixia.javafuturehorizons.capstone.exception.BookNotFoundException;
 import com.cognixia.javafuturehorizons.capstone.exception.UserNotFoundException;
 import com.cognixia.javafuturehorizons.capstone.model.Book;
+import com.cognixia.javafuturehorizons.capstone.model.Tracker;
 import com.cognixia.javafuturehorizons.capstone.model.User;
 
 public class DaoImpl implements Dao {
@@ -156,8 +159,8 @@ public class DaoImpl implements Dao {
   }
 
   @Override
-  public Map<Book, Integer> getUserProgress(User user) throws SQLException, UserNotFoundException {
-    Map<Book, Integer> progressMap = new HashMap<>();
+  public List<Tracker> getUserProgress(User user) throws SQLException, UserNotFoundException {
+    List<Tracker> trackers = new ArrayList<>();
     String sql = "SELECT b.book_id, b.title, b.author, b.num_pages, t.progress " +
         "FROM books b JOIN trackers t ON b.book_id = t.book_id " +
         "WHERE t.user_id = ?";
@@ -171,10 +174,9 @@ public class DaoImpl implements Dao {
           resultSet.getString("author"),
           resultSet.getInt("num_pages"));
       int progress = resultSet.getInt("progress");
-      progressMap.put(book, progress);
-      System.out.println("Book: " + book.getTitle() + ", Progress: " + progress);
+      trackers.add(new Tracker(book, progress));
     }
-    return progressMap;
+    return trackers;
   }
 
   @Override
