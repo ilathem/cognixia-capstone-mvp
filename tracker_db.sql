@@ -57,31 +57,6 @@ INSERT INTO
 VALUES
   (0, 'testuser5', 'password5');
 
--- Insert test trackers for test users
-INSERT INTO
-  trackers (user_id, book_id, progress)
-VALUES
-  (1, 1, 10);
-
-INSERT INTO
-  trackers (user_id, book_id, progress)
-VALUES
-  (2, 1, 50);
-
-INSERT INTO
-  trackers (user_id, book_id, progress)
-VALUES
-  (3, 1, 120);
-
-INSERT INTO
-  trackers (user_id, book_id, progress)
-VALUES
-  (4, 1, 200);
-
-INSERT INTO
-  trackers (user_id, book_id, progress)
-VALUES
-  (5, 1, 327);
 
 -- Insert books
 INSERT INTO
@@ -178,3 +153,29 @@ INSERT INTO
   books (title, author, num_pages)
 VALUES
   ('On Liberty', 'John Stuart Mill', 176);
+
+-- Insert test trackers for test users
+INSERT INTO
+  trackers (user_id, book_id, progress)
+VALUES
+  (1, 1, 10);
+
+INSERT INTO
+  trackers (user_id, book_id, progress)
+VALUES
+  (2, 1, 50);
+
+INSERT INTO
+  trackers (user_id, book_id, progress)
+VALUES
+  (3, 1, 120);
+
+INSERT INTO
+  trackers (user_id, book_id, progress)
+VALUES
+  (4, 1, 200);
+
+INSERT INTO
+  trackers (user_id, book_id, progress)
+VALUES
+  (5, 1, 327);
