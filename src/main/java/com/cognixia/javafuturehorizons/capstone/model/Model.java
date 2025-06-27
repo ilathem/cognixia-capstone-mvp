@@ -149,8 +149,8 @@ public class Model {
       }
       case "getAllUsersProgress": {
         Book bookForProgress = (Book) request.getData().get("book");
-        Map<User, Integer> allUsersProgress = dao.getAllUsersProgress(bookForProgress);
-        return new Response("All users progress retrieved successfully.", Map.of("progressMap", allUsersProgress));
+        List<UserProgress> allUsersProgress = dao.getAllUsersProgress(bookForProgress);
+        return new Response("All users progress retrieved successfully.", Map.of("progressList", allUsersProgress));
       }
       case "updateProgress": {
         User userForProgress = objectMapper.convertValue(

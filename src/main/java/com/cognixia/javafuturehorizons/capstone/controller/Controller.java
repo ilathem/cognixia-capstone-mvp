@@ -11,6 +11,7 @@ import com.cognixia.javafuturehorizons.capstone.model.Request;
 import com.cognixia.javafuturehorizons.capstone.model.Response;
 import com.cognixia.javafuturehorizons.capstone.model.Tracker;
 import com.cognixia.javafuturehorizons.capstone.model.User;
+import com.cognixia.javafuturehorizons.capstone.model.UserProgress;
 import com.cognixia.javafuturehorizons.capstone.utils.Utils;
 import com.cognixia.javafuturehorizons.capstone.view.View;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -122,6 +123,7 @@ public class Controller {
     int menuChoice = view.getUserMenuChoice(new String[] {
         "View My Trackers",
         "Update Tracker Progress",
+        "View All Users Progress For One Book"
     });
     switch (menuChoice) {
       case 1:
@@ -130,10 +132,41 @@ public class Controller {
       case 2:
         updateTrackerProgress();
         break;
+      case 3:
+        showTrackersForOneBook();
 
       default:
         break;
     }
+  }
+
+  private void showTrackersForOneBook() {
+    List<Book> books = getAllBooks();
+    view.printMessage("\n\nSelect a book to view all users' progress:");
+    books.forEach(book -> {
+      view.printMessage("Book: " + book.getTitle() + ", Author: " + book.getAuthor() +
+          ", Pages: " + book.getNumPages());
+    });
+    String userInput = view.getUserInput("Enter the book title to view progress: ");
+    Book selectedBook = books.stream()
+        .filter(book -> book.getTitle().equalsIgnoreCase(userInput))
+        .findFirst()
+        .orElse(null);
+    if (selectedBook != null) {
+      Response response = sendRequest(new Request("getAllUsersProgress", Map.of("book", selectedBook)));
+      List<UserProgress> trackers = objectMapper.convertValue(
+          response.getData().get("progressList"),
+          new TypeReference<List<UserProgress>>() {
+          });
+      view.printMessage("\n\nProgress for book: " + selectedBook.getTitle());
+      trackers.forEach(tracker -> {
+        view.printMessage("User: " + tracker.getUsername() +
+            ", Progress: " + tracker.getProgress() + " out of " + selectedBook.getNumPages());
+      });
+    } else {
+      view.printMessage("No book found with title: " + userInput);
+    }
+    showMainMenu();
   }
 
   private void showTrackers() {

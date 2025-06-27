@@ -9,6 +9,7 @@ import com.cognixia.javafuturehorizons.capstone.exception.UserNotFoundException;
 import com.cognixia.javafuturehorizons.capstone.model.Book;
 import com.cognixia.javafuturehorizons.capstone.model.Tracker;
 import com.cognixia.javafuturehorizons.capstone.model.User;
+import com.cognixia.javafuturehorizons.capstone.model.UserProgress;
 
 import java.sql.SQLException;
 
@@ -57,7 +58,7 @@ public interface Dao {
   public Optional<Integer> getUserProgress(User user, Book book) throws SQLException, UserNotFoundException;
 
   // get all users progress of a book
-  public Map<User, Integer> getAllUsersProgress(Book book) throws SQLException, BookNotFoundException;
+  public List<UserProgress> getAllUsersProgress(Book book) throws SQLException, BookNotFoundException;
 
   // update tracker progress
   public boolean updateProgress(User user, Book book, int progress) throws SQLException;

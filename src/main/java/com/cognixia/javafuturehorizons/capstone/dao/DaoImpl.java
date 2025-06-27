@@ -15,6 +15,7 @@ import com.cognixia.javafuturehorizons.capstone.exception.UserNotFoundException;
 import com.cognixia.javafuturehorizons.capstone.model.Book;
 import com.cognixia.javafuturehorizons.capstone.model.Tracker;
 import com.cognixia.javafuturehorizons.capstone.model.User;
+import com.cognixia.javafuturehorizons.capstone.model.UserProgress;
 
 public class DaoImpl implements Dao {
 
@@ -211,22 +212,20 @@ public class DaoImpl implements Dao {
   }
 
   @Override
-  public Map<User, Integer> getAllUsersProgress(Book book) throws SQLException, BookNotFoundException {
-    String sql = "SELECT u.user_id, u.name, t.progress " +
+  public List<UserProgress> getAllUsersProgress(Book book) throws SQLException, BookNotFoundException {
+    String sql = "SELECT u.name, t.progress " +
         "FROM users u JOIN trackers t ON u.user_id = t.user_id " +
         "WHERE t.book_id = ?";
     PreparedStatement stmt = connection.prepareStatement(sql);
     stmt.setInt(1, book.getBookId());
     var resultSet = stmt.executeQuery();
-    Map<User, Integer> userProgressMap = new HashMap<>();
+    List<UserProgress> userProgressList = new ArrayList<>();
     while (resultSet.next()) {
-      User user = new User(
-          resultSet.getInt("user_id"),
-          resultSet.getString("name"));
+      String username = resultSet.getString("name");
       int progress = resultSet.getInt("progress");
-      userProgressMap.put(user, progress);
+      userProgressList.add(new UserProgress(username, progress));
     }
-    return userProgressMap;
+    return userProgressList;
   }
 
   @Override
