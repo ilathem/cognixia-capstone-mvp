@@ -54,7 +54,7 @@ public interface Dao {
   public List<Tracker> getUserProgress(User user) throws SQLException, UserNotFoundException;
 
   // get tracker progress of a user for a specific book
-  public Optional<Integer> getUserProgress(User user, Book book) throws SQLException, UserNotFoundException;
+  public Optional<Tracker> getUserProgress(User user, Book book) throws SQLException, UserNotFoundException;
 
   // get all users progress of a book
   public List<UserProgress> getAllUsersProgress(Book book) throws SQLException, BookNotFoundException;

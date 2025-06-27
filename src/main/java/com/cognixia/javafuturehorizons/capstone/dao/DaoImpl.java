@@ -177,7 +177,7 @@ public class DaoImpl implements Dao {
   @Override
   public List<Tracker> getUserProgress(User user) throws SQLException, UserNotFoundException {
     List<Tracker> trackers = new ArrayList<>();
-    String sql = "SELECT b.book_id, b.title, b.author, b.num_pages, t.progress " +
+    String sql = "SELECT b.book_id, b.title, b.author, b.num_pages, t.progress, t.rating " +
         "FROM books b JOIN trackers t ON b.book_id = t.book_id " +
         "WHERE t.user_id = ?";
     PreparedStatement stmt = connection.prepareStatement(sql);
@@ -190,28 +190,30 @@ public class DaoImpl implements Dao {
           resultSet.getString("author"),
           resultSet.getInt("num_pages"));
       int progress = resultSet.getInt("progress");
-      trackers.add(new Tracker(book, progress));
+      int rating = resultSet.getInt("rating");
+      trackers.add(new Tracker(book, progress, rating));
     }
     return trackers;
   }
 
   @Override
-  public Optional<Integer> getUserProgress(User user, Book book) throws SQLException, UserNotFoundException {
-    String sql = "select progress from trackers where user_id = ? and book_id = ?";
+  public Optional<Tracker> getUserProgress(User user, Book book) throws SQLException, UserNotFoundException {
+    String sql = "select progress, rating from trackers where user_id = ? and book_id = ?";
     PreparedStatement stmt = connection.prepareStatement(sql);
     stmt.setInt(1, user.getUserId());
     stmt.setInt(2, book.getBookId());
     var resultSet = stmt.executeQuery();
     if (resultSet.next()) {
       int progress = resultSet.getInt("progress");
-      return Optional.of(progress);
+      int rating = resultSet.getInt("rating");
+      return Optional.of(new Tracker(book, progress, rating));
     }
     return Optional.empty();
   }
 
   @Override
   public List<UserProgress> getAllUsersProgress(Book book) throws SQLException, BookNotFoundException {
-    String sql = "SELECT u.name, t.progress " +
+    String sql = "SELECT u.name, t.progress, t.rating " +
         "FROM users u JOIN trackers t ON u.user_id = t.user_id " +
         "WHERE t.book_id = ?";
     PreparedStatement stmt = connection.prepareStatement(sql);
@@ -221,7 +223,8 @@ public class DaoImpl implements Dao {
     while (resultSet.next()) {
       String username = resultSet.getString("name");
       int progress = resultSet.getInt("progress");
-      userProgressList.add(new UserProgress(username, progress));
+      int rating = resultSet.getInt("rating");
+      userProgressList.add(new UserProgress(username, progress, rating));
     }
     return userProgressList;
   }

@@ -149,7 +149,7 @@ public class Model {
       }
       case "getAllUsersProgress": {
         Book bookForProgress = (Book) objectMapper.convertValue(
-          request.getData().get("book"), Book.class);
+            request.getData().get("book"), Book.class);
         List<UserProgress> allUsersProgress = dao.getAllUsersProgress(bookForProgress);
         return new Response("All users progress retrieved successfully.", Map.of("progressList", allUsersProgress));
       }
@@ -170,9 +170,13 @@ public class Model {
             : new Response("Failed to update progress.");
       }
       case "rateBook": {
-        User userForRating = (User) request.getData().get("user");
-        Book bookForRating = (Book) request.getData().get("book");
+        User userForRating = (User) objectMapper.convertValue(request.getData().get("user"), User.class);
+        Book bookForRating = (Book) objectMapper.convertValue(request.getData().get("book"), Book.class);
         int rating = (int) request.getData().get("rating");
+        List<Tracker> progressList = dao.getUserProgress(userForRating);
+        if (progressList.stream().noneMatch(tracker -> (tracker.getBook().equals(bookForRating) && tracker.getProgress() == bookForRating.getNumPages()))) {
+          return new Response("User has not read the book, cannot rate.");
+        }
         boolean bookRated = dao.rateBook(userForRating, bookForRating, rating);
         return bookRated ? new Response("Book rated successfully.")
             : new Response("Failed to rate book.");

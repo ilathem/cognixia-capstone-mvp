@@ -3,13 +3,15 @@ package com.cognixia.javafuturehorizons.capstone.model;
 public class Tracker {
     private Book book;
     private int progress;
+    private int rating;
 
     public Tracker() {
     }
 
-    public Tracker(Book book, int progress) {
+    public Tracker(Book book, int progress, int rating) {
         this.book = book;
         this.progress = progress;
+        this.rating = rating;
     }
 
     public Book getBook() {
@@ -28,11 +30,20 @@ public class Tracker {
         this.progress = progress;
     }
 
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
+    }
+
     @Override
     public String toString() {
         return "Tracker{" +
                 "book=" + book +
                 ", progress=" + progress +
+                ", rating=" + rating +
                 '}';
     }
 }

@@ -123,7 +123,8 @@ public class Controller {
     int menuChoice = view.getUserMenuChoice(new String[] {
         "View My Trackers",
         "Update Tracker Progress",
-        "View All Users Progress For One Book"
+        "View All Users Progress For One Book",
+        "Rate book that has been read"
     });
     switch (menuChoice) {
       case 1:
@@ -134,10 +135,38 @@ public class Controller {
         break;
       case 3:
         showTrackersForOneBook();
-
+        break;
+      case 4: 
+        rateBook();
+        break;
       default:
         break;
     }
+  }
+
+  private void rateBook() {
+    List<Book> books = getAllBooks();
+    view.printMessage("\n\nSelect a book to rate:");
+    books.forEach(book -> {
+      view.printMessage("Book: " + book.getTitle() + ", Author: " + book.getAuthor() +
+          ", Pages: " + book.getNumPages());
+    });
+    String userInput = view.getUserInput("Enter the book title to rate: ");
+    Book selectedBook = books.stream()
+        .filter(book -> book.getTitle().equalsIgnoreCase(userInput))
+        .findFirst()
+        .orElse(null);
+    if (selectedBook != null) {
+      int rating = Integer.parseInt(view.getUserInt("Enter your rating for this book (1-5): ", 1, 5));
+      Response response = sendRequest(new Request("rateBook", Map.of(
+          "user", currentUser,
+          "book", selectedBook,
+          "rating", rating)));
+      view.printMessage(response.getMessage());
+    } else {
+      view.printMessage("No book found with title: " + userInput);
+    }
+    showMainMenu();
   }
 
   private void showTrackersForOneBook() {
@@ -161,7 +190,8 @@ public class Controller {
       view.printMessage("\n\nProgress for book: " + selectedBook.getTitle());
       trackers.forEach(tracker -> {
         view.printMessage("User: " + tracker.getUsername() +
-            ", Progress: " + tracker.getProgress() + " out of " + selectedBook.getNumPages());
+            ", Progress: " + tracker.getProgress() + " out of " + selectedBook.getNumPages() + 
+            ", Rating: " + tracker.getRating());
       });
     } else {
       view.printMessage("No book found with title: " + userInput);
@@ -173,7 +203,8 @@ public class Controller {
     view.printMessage("\n\nDisplaying trackers for user: " + currentUser.getName());
     getUserTrackers().forEach(tracker -> {
       view.printMessage("Book: " + tracker.getBook().getTitle() +
-          ", Progress: " + tracker.getProgress() + " out of " + tracker.getBook().getNumPages());
+          ", Progress: " + tracker.getProgress() + " out of " + tracker.getBook().getNumPages() + 
+          ", Rating: " + tracker.getRating());
     });
     showMainMenu();
   }
