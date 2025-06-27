@@ -136,7 +136,7 @@ public class Controller {
       case 3:
         showTrackersForOneBook();
         break;
-      case 4: 
+      case 4:
         rateBook();
         break;
       default:
@@ -145,19 +145,21 @@ public class Controller {
   }
 
   private void rateBook() {
-    List<Book> books = getAllBooks();
+    List<Tracker> completedTrackers = getUserTrackers().stream()
+        .filter(tracker -> tracker.getProgress() == tracker.getBook().getNumPages())
+        .collect(Collectors.toList());
     view.printMessage("\n\nSelect a book to rate:");
-    books.forEach(book -> {
-      view.printMessage("Book: " + book.getTitle() + ", Author: " + book.getAuthor() +
-          ", Pages: " + book.getNumPages());
+    completedTrackers.forEach(tracker -> {
+      view.printMessage("Book: " + tracker.getBook().getTitle() + ", Author: " + tracker.getBook().getAuthor());
     });
-    String userInput = view.getUserInput("Enter the book title to rate: ");
-    Book selectedBook = books.stream()
-        .filter(book -> book.getTitle().equalsIgnoreCase(userInput))
+    String userInput = view.getUserInput("\nEnter the book title to rate: ");
+    Book selectedBook = completedTrackers.stream()
+        .filter(tracker -> tracker.getBook().getTitle().equalsIgnoreCase(userInput))
         .findFirst()
+        .map(Tracker::getBook)
         .orElse(null);
     if (selectedBook != null) {
-      int rating = Integer.parseInt(view.getUserInt("Enter your rating for this book (1-5): ", 1, 5));
+      int rating = Integer.parseInt(view.getUserInt("\nEnter your rating for this book (1-5): ", 1, 5));
       Response response = sendRequest(new Request("rateBook", Map.of(
           "user", currentUser,
           "book", selectedBook,
@@ -176,7 +178,7 @@ public class Controller {
       view.printMessage("Book: " + book.getTitle() + ", Author: " + book.getAuthor() +
           ", Pages: " + book.getNumPages());
     });
-    String userInput = view.getUserInput("Enter the book title to view progress: ");
+    String userInput = view.getUserInput("\nEnter the book title to view progress: ");
     Book selectedBook = books.stream()
         .filter(book -> book.getTitle().equalsIgnoreCase(userInput))
         .findFirst()
@@ -190,8 +192,8 @@ public class Controller {
       view.printMessage("\n\nProgress for book: " + selectedBook.getTitle());
       trackers.forEach(tracker -> {
         view.printMessage("User: " + tracker.getUsername() +
-            ", Progress: " + tracker.getProgress() + " out of " + selectedBook.getNumPages() + 
-            ", Rating: " + tracker.getRating());
+            ", Progress: " + tracker.getProgress() + " out of " + selectedBook.getNumPages() +
+            ", Rating: " + (tracker.getRating() > 0 ? tracker.getRating() : "Not Rated"));
       });
     } else {
       view.printMessage("No book found with title: " + userInput);
@@ -201,11 +203,38 @@ public class Controller {
 
   private void showTrackers() {
     view.printMessage("\n\nDisplaying trackers for user: " + currentUser.getName());
-    getUserTrackers().forEach(tracker -> {
-      view.printMessage("Book: " + tracker.getBook().getTitle() +
-          ", Progress: " + tracker.getProgress() + " out of " + tracker.getBook().getNumPages() + 
-          ", Rating: " + tracker.getRating());
+    List<Tracker> allTrackers = getUserTrackers();
+    List<Tracker> completedTrackers = allTrackers.stream()
+        .filter(tracker -> tracker.getProgress() == tracker.getBook().getNumPages())
+        .collect(Collectors.toList());
+    List<Tracker> inProgressTrackers = allTrackers.stream()
+        .filter(tracker -> tracker.getProgress() < tracker.getBook().getNumPages())
+        .collect(Collectors.toList());
+    List<Book> allBooks = getAllBooks();
+    List<Book> untrackedBooks = allBooks.stream()
+        .filter(book -> allTrackers.stream().noneMatch(tracker -> tracker.getBook().getBookId() == book.getBookId()))
+        .collect(Collectors.toList());
+    if (completedTrackers.size() > 0)
+      view.printMessage("\nCompleted Books:");
+    completedTrackers.forEach(t -> {
+      view.printMessage(t.getBook().getTitle() +
+          ", Rating: " + (t.getRating() > 0 ? t.getRating() : "Not Rated"));
     });
+    if (inProgressTrackers.size() > 0)
+      view.printMessage("\nBooks In Progress:");
+    inProgressTrackers.forEach(t -> {
+      view.printMessage(t.getBook().getTitle() +
+          ", Progress: " + t.getProgress() + " out of " + t.getBook().getNumPages());
+    });
+    if (untrackedBooks.size() > 0)
+      view.printMessage("\nUntracked Books:");
+    untrackedBooks.forEach(book -> {
+      view.printMessage("Book: " + book.getTitle() + ", Author: " + book.getAuthor() +
+          ", Pages: " + book.getNumPages());
+    });
+    if (allTrackers.isEmpty()) {
+      view.printMessage("You have no trackers, add to trackers to see progress here.");
+    }
     showMainMenu();
   }
 
@@ -232,18 +261,18 @@ public class Controller {
         .map(tracker -> tracker.getBook().getBookId())
         .collect(Collectors.toSet());
     books.removeIf(book -> trackedBookIds.contains(book.getBookId()));
-    view.printMessage("\n\nSelect a book to update progress:");
+    view.printMessage("\n\nSelect a book to update progress:\n");
     view.printMessage("Tracked Books:");
     trackers.forEach(tracker -> {
       view.printMessage("Book: " + tracker.getBook().getTitle() +
           ", Progress: " + tracker.getProgress() + " out of " + tracker.getBook().getNumPages());
     });
-    view.printMessage("Untracked Books:");
+    view.printMessage("\nUntracked Books:");
     books.forEach(book -> {
       view.printMessage("Book: " + book.getTitle() + ", Author: " + book.getAuthor() +
           ", Pages: " + book.getNumPages());
     });
-    String userInput = view.getUserInput("Enter the book title to update progress: ");
+    String userInput = view.getUserInput("\nEnter the book title to update progress: ");
     boolean updatingTracker = trackers.stream()
         .anyMatch(tracker -> tracker.getBook().getTitle().equalsIgnoreCase(userInput)
             && upsertTrackerProgress(tracker.getBook()));
@@ -258,7 +287,7 @@ public class Controller {
   }
 
   private boolean upsertTrackerProgress(Book book) {
-    view.printMessage("\n\nUpdating progress for book: " + book.getTitle());
+    view.printMessage("\nUpdating progress for book: " + book.getTitle());
     int progress = Integer.parseInt(view.getUserInt("Enter your progress for this book: ", 0, book.getNumPages()));
     Response response = sendRequest(new Request("updateProgress", Map.of(
         "user", currentUser,
