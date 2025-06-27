@@ -31,6 +31,58 @@ create table
     foreign key (book_id) references books (book_id)
   );
 
+-- Insert test users
+INSERT INTO
+  users (clearance, name, password)
+VALUES
+  (0, 'testuser1', 'password1');
+
+INSERT INTO
+  users (clearance, name, password)
+VALUES
+  (0, 'testuser2', 'password2');
+
+INSERT INTO
+  users (clearance, name, password)
+VALUES
+  (0, 'testuser3', 'password3');
+
+INSERT INTO
+  users (clearance, name, password)
+VALUES
+  (0, 'testuser4', 'password4');
+
+INSERT INTO
+  users (clearance, name, password)
+VALUES
+  (0, 'testuser5', 'password5');
+
+-- Insert test trackers for test users
+INSERT INTO
+  trackers (user_id, book_id, progress)
+VALUES
+  (1, 1, 10);
+
+INSERT INTO
+  trackers (user_id, book_id, progress)
+VALUES
+  (2, 1, 50);
+
+INSERT INTO
+  trackers (user_id, book_id, progress)
+VALUES
+  (3, 1, 120);
+
+INSERT INTO
+  trackers (user_id, book_id, progress)
+VALUES
+  (4, 1, 200);
+
+INSERT INTO
+  trackers (user_id, book_id, progress)
+VALUES
+  (5, 1, 327);
+
 -- Insert books
 INSERT INTO
   books (title, author, num_pages)
