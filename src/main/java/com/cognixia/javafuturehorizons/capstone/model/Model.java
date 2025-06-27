@@ -148,7 +148,8 @@ public class Model {
         return new Response("User progress retrieved successfully.", Map.of("progressMap", progressList));
       }
       case "getAllUsersProgress": {
-        Book bookForProgress = (Book) request.getData().get("book");
+        Book bookForProgress = (Book) objectMapper.convertValue(
+          request.getData().get("book"), Book.class);
         List<UserProgress> allUsersProgress = dao.getAllUsersProgress(bookForProgress);
         return new Response("All users progress retrieved successfully.", Map.of("progressList", allUsersProgress));
       }
