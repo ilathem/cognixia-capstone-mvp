@@ -125,7 +125,14 @@ public class DaoImpl implements Dao {
   }
 
   @Override
-  public boolean addBook(Book book) throws SQLException, ClassNotFoundException {
+  public boolean addBook(User user, Book book) throws SQLException, ClassNotFoundException, UserNotFoundException {
+    Optional<User> existingUser = this.validateUser(user.getName(), user.getPassword());
+    if (existingUser.isEmpty()) {
+      throw new UserNotFoundException("User not found: " + user.getName());
+    }
+    if (existingUser.get().getClearance() < 1) {
+      return false;
+    }
     String sql = "INSERT INTO books (title, author, num_pages) VALUES (?, ?, ?)";
     try (PreparedStatement stmt = ConnectionManager.getConnection().prepareStatement(sql)) {
       stmt.setString(1, book.getTitle());
@@ -137,7 +144,15 @@ public class DaoImpl implements Dao {
   }
 
   @Override
-  public boolean updateBook(Book book) throws SQLException, BookNotFoundException, ClassNotFoundException {
+  public boolean updateBook(User user, Book book)
+      throws SQLException, BookNotFoundException, ClassNotFoundException, UserNotFoundException {
+    Optional<User> existingUser = this.validateUser(user.getName(), user.getPassword());
+    if (existingUser.isEmpty()) {
+      throw new UserNotFoundException("User not found: " + user.getName());
+    }
+    if (existingUser.get().getClearance() < 1) {
+      return false;
+    }
     String sql = "UPDATE books SET title = ?, author = ?, num_pages = ? WHERE book_id = ?";
     try (PreparedStatement stmt = ConnectionManager.getConnection().prepareStatement(sql)) {
       stmt.setString(1, book.getTitle());
@@ -154,7 +169,15 @@ public class DaoImpl implements Dao {
   }
 
   @Override
-  public boolean deleteBook(Book book) throws SQLException, BookNotFoundException, ClassNotFoundException {
+  public boolean deleteBook(User user, Book book)
+      throws SQLException, BookNotFoundException, ClassNotFoundException, UserNotFoundException {
+    Optional<User> existingUser = this.validateUser(user.getName(), user.getPassword());
+    if (existingUser.isEmpty()) {
+      throw new UserNotFoundException("User not found: " + user.getName());
+    }
+    if (existingUser.get().getClearance() < 1) {
+      return false;
+    }
     String sql = "DELETE FROM books WHERE book_id = ?";
     try (PreparedStatement stmt = ConnectionManager.getConnection().prepareStatement(sql)) {
       stmt.setInt(1, book.getBookId());

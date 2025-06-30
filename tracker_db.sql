@@ -27,8 +27,8 @@ create table
     progress int not null default 0,
     rating int,
     primary key (user_id, book_id),
-    foreign key (user_id) references users (user_id),
-    foreign key (book_id) references books (book_id)
+    foreign key (user_id) references users (user_id) on delete cascade,
+    foreign key (book_id) references books (book_id) on delete cascade
   );
 
 -- Insert test users
@@ -57,6 +57,10 @@ INSERT INTO
 VALUES
   (0, 'testuser5', 'password5');
 
+INSERT INTO
+  users (clearance, name, password)
+VALUES
+  (1, 'admin', 'admin');
 
 -- Insert books
 INSERT INTO
@@ -159,6 +163,11 @@ INSERT INTO
   trackers (user_id, book_id, progress)
 VALUES
   (1, 1, 10);
+
+INSERT INTO
+  trackers (user_id, book_id, progress)
+VALUES
+  (1, 2, 20);
 
 INSERT INTO
   trackers (user_id, book_id, progress)

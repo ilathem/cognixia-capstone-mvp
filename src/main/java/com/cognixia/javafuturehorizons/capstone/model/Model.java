@@ -125,20 +125,29 @@ public class Model {
             .orElseGet(() -> new Response("Book not found."));
       }
       case "addBook": {
-        Book newBook = (Book) request.getData().get("book");
-        boolean bookAdded = dao.addBook(newBook);
+        Book newBook = (Book) objectMapper.convertValue(
+          request.getData().get("book"), Book.class);
+        User user = objectMapper.convertValue(
+            request.getData().get("user"), User.class);
+        boolean bookAdded = dao.addBook(user, newBook);
         return bookAdded ? new Response("Book added successfully.")
             : new Response("Failed to add book.");
       }
       case "updateBook": {
-        Book bookToUpdate = (Book) request.getData().get("book");
-        boolean bookUpdated = dao.updateBook(bookToUpdate);
+        Book bookToUpdate = (Book) objectMapper.convertValue(
+          request.getData().get("book"), Book.class);
+        User user = objectMapper.convertValue(
+            request.getData().get("user"), User.class);
+        boolean bookUpdated = dao.updateBook(user, bookToUpdate);
         return bookUpdated ? new Response("Book updated successfully.")
             : new Response("Failed to update book.");
       }
       case "deleteBook": {
-        Book bookToDelete = (Book) request.getData().get("book");
-        boolean bookDeleted = dao.deleteBook(bookToDelete);
+        Book bookToDelete = (Book) objectMapper.convertValue(
+          request.getData().get("book"), Book.class);
+        User user = objectMapper.convertValue(
+            request.getData().get("user"), User.class);
+        boolean bookDeleted = dao.deleteBook(user, bookToDelete);
         return bookDeleted ? new Response("Book deleted successfully.")
             : new Response("Failed to delete book.");
       }
@@ -174,7 +183,8 @@ public class Model {
         Book bookForRating = (Book) objectMapper.convertValue(request.getData().get("book"), Book.class);
         int rating = (int) request.getData().get("rating");
         List<Tracker> progressList = dao.getUserProgress(userForRating);
-        if (progressList.stream().noneMatch(tracker -> (tracker.getBook().equals(bookForRating) && tracker.getProgress() == bookForRating.getNumPages()))) {
+        if (progressList.stream().noneMatch(tracker -> (tracker.getBook().equals(bookForRating)
+            && tracker.getProgress() == bookForRating.getNumPages()))) {
           return new Response("User has not read the book, cannot rate.");
         }
         boolean bookRated = dao.rateBook(userForRating, bookForRating, rating);

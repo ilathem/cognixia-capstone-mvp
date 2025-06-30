@@ -1,5 +1,6 @@
 package com.cognixia.javafuturehorizons.capstone.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,28 +121,135 @@ public class Controller {
   }
 
   private void showMainMenu() {
-    int menuChoice = view.getUserMenuChoice(new String[] {
+    ArrayList<String> menuOptions = new ArrayList<String>(List.of( 
+        "Logout",
         "View My Trackers",
         "Update Tracker Progress",
         "View All Users Progress For One Book",
         "Rate book that has been read"
-    });
+    ));
+    if (this.currentUser.getClearance() > 0) {
+      menuOptions.add("Show admin menu");
+    }
+    int menuChoice = view.getUserMenuChoice(menuOptions.toArray(new String[0]));
     switch (menuChoice) {
       case 1:
-        showTrackers();
+        logout();
         break;
       case 2:
-        updateTrackerProgress();
+        showTrackers();
         break;
       case 3:
-        showTrackersForOneBook();
+        updateTrackerProgress();
         break;
       case 4:
+        showTrackersForOneBook();
+        break;
+      case 5:
         rateBook();
+        break;
+      case 6:
+        if (this.currentUser.getClearance() > 0) {
+          showAdminMenu();
+        }
         break;
       default:
         break;
     }
+  }
+
+  private void showAdminMenu() {
+    int adminChoice = view.getUserMenuChoice(new String[] {
+        "Add Book",
+        "Update Book",
+        "Delete Book",
+        "Go to main menu",
+    });
+    switch (adminChoice) {
+      case 1:
+        addBook();
+        break;
+      case 2:
+        updateBook();
+        break;
+      case 3:
+        deleteBook();
+        break;
+      case 4:
+        showMainMenu();
+        break;
+      default:
+        view.printMessage("Invalid choice. Please try again.");
+        showAdminMenu();
+    }
+  }
+
+  private void addBook() {
+    String title = view.getUserInput("Enter book title: ");
+    String author = view.getUserInput("Enter book author: ");
+    int numPages = Integer.parseInt(view.getUserInt("Enter number of pages: ", 1, Integer.MAX_VALUE));
+    Book newBook = new Book(title, author, numPages);
+    Response response = sendRequest(new Request("addBook", Map.of("user", currentUser, "book", newBook)));
+    view.printMessage(response.getMessage());
+    showAdminMenu();
+  }
+
+  private void updateBook() {
+    List<Book> books = getAllBooks();
+    view.printMessage("\n\nSelect a book to update:");
+    books.forEach(book -> {
+      view.printMessage("Book: " + book.getTitle() + ", Author: " + book.getAuthor() +
+          ", Pages: " + book.getNumPages());
+    });
+    String userInput = view.getUserInput("\nEnter the book title to update: ");
+    Book selectedBook = books.stream()
+        .filter(book -> book.getTitle().equalsIgnoreCase(userInput))
+        .findFirst()
+        .orElse(null);
+    if (selectedBook != null) {
+      String newTitle = view.getUserInput("Enter new title (leave blank to keep current): ");
+      String newAuthor = view.getUserInput("Enter new author (leave blank to keep current): ");
+      int newNumPages = Integer
+          .parseInt(view.getUserInt("Enter new number of pages (0 to keep current): ", 0, Integer.MAX_VALUE));
+      if (!newTitle.isBlank())
+        selectedBook.setTitle(newTitle);
+      if (!newAuthor.isBlank())
+        selectedBook.setAuthor(newAuthor);
+      if (newNumPages > 0)
+        selectedBook.setNumPages(newNumPages);
+      Response response = sendRequest(new Request("updateBook", Map.of("user", currentUser, "book", selectedBook)));
+      view.printMessage(response.getMessage());
+    } else {
+      view.printMessage("No book found with title: " + userInput);
+    }
+    showAdminMenu();
+  }
+
+  private void deleteBook() {
+    List<Book> books = getAllBooks();
+    view.printMessage("\n\nSelect a book to delete:");
+    books.forEach(book -> {
+      view.printMessage("Book: " + book.getTitle() + ", Author: " + book.getAuthor() +
+          ", Pages: " + book.getNumPages());
+    });
+    String userInput = view.getUserInput("\nEnter the book title to delete: ");
+    Book selectedBook = books.stream()
+        .filter(book -> book.getTitle().equalsIgnoreCase(userInput))
+        .findFirst()
+        .orElse(null);
+    if (selectedBook != null) {
+      Response response = sendRequest(new Request("deleteBook", Map.of("user", currentUser, "book", selectedBook)));
+      view.printMessage(response.getMessage());
+    } else {
+      view.printMessage("No book found with title: " + userInput);
+    }
+    showAdminMenu();
+  }
+
+  private void logout() {
+    view.printMessage("Logging out...");
+    this.currentUser = null;
+    welcome();
   }
 
   private void rateBook() {
