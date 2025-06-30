@@ -123,6 +123,7 @@ public class Controller {
   private void showMainMenu() {
     ArrayList<String> menuOptions = new ArrayList<String>(List.of( 
         "Logout",
+        "Quit Application",
         "View My Trackers",
         "Update Tracker Progress",
         "View All Users Progress For One Book",
@@ -136,19 +137,23 @@ public class Controller {
       case 1:
         logout();
         break;
-      case 2:
-        showTrackers();
+      case 2: 
+        view.printMessage("Thank you for using the Tracker Application. Goodbye!");
+        System.exit(0);
         break;
       case 3:
-        updateTrackerProgress();
+        showTrackers();
         break;
       case 4:
-        showTrackersForOneBook();
+        updateTrackerProgress();
         break;
       case 5:
-        rateBook();
+        showTrackersForOneBook();
         break;
       case 6:
+        rateBook();
+        break;
+      case 7:
         if (this.currentUser.getClearance() > 0) {
           showAdminMenu();
         }
