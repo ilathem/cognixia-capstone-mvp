@@ -9,7 +9,6 @@ import com.cognixia.javafuturehorizons.capstone.exception.BookNotFoundException;
 import com.cognixia.javafuturehorizons.capstone.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,7 +19,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
 import java.util.List;
-import java.util.Map;
 
 public class DaoTest {
   private static Dao dao;
