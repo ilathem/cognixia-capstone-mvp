@@ -3,6 +3,7 @@ package com.cognixia.javafuturehorizons.capstone.dao;
 import com.cognixia.javafuturehorizons.capstone.model.Book;
 import com.cognixia.javafuturehorizons.capstone.model.Tracker;
 import com.cognixia.javafuturehorizons.capstone.model.User;
+import com.cognixia.javafuturehorizons.capstone.model.UserProgress;
 import com.cognixia.javafuturehorizons.capstone.connection.ConnectionManager;
 import com.cognixia.javafuturehorizons.capstone.exception.BookNotFoundException;
 import com.cognixia.javafuturehorizons.capstone.exception.UserNotFoundException;
@@ -27,15 +28,6 @@ public class DaoTest {
     // This method can be used to set up any static resources needed for the tests
     // For example, initializing a database connection pool or loading test data
     dao = DaoImpl.getInstance();
-    dao.establishConnection();
-  }
-
-  @AfterAll
-  public static void afterAll() throws SQLException {
-    // This method can be used to clean up resources after all tests have run
-    if (dao != null) {
-      dao.closeConnection();
-    }
   }
 
   @BeforeEach
@@ -85,14 +77,14 @@ public class DaoTest {
   }
 
   @Test
-  public void testCreateUser() throws SQLException, UserNotFoundException {
+  public void testCreateUser() throws SQLException, UserNotFoundException, ClassNotFoundException {
     User user = new User(0, "TestUser", "password");
     User result = dao.createUser(user);
     assertTrue(user.getName().equals(result.getName()) && user.getPassword().equals(result.getPassword()));
   }
 
   @Test
-  public void testDeleteUser() throws SQLException, UserNotFoundException {
+  public void testDeleteUser() throws SQLException, UserNotFoundException, ClassNotFoundException {
     User user = new User(0, "TestUser", "password");
     dao.createUser(user);
     boolean result = dao.deleteUser(user);
@@ -100,7 +92,7 @@ public class DaoTest {
   }
 
   @Test
-  public void testGetUserById() throws SQLException, UserNotFoundException {
+  public void testGetUserById() throws SQLException, UserNotFoundException, ClassNotFoundException {
     User user = new User(0, "TestUser", "password");
     dao.createUser(user);
     Optional<User> retrievedUser = dao.getUserById(1);
@@ -109,7 +101,7 @@ public class DaoTest {
   }
 
   @Test
-  public void testValidateUser() throws SQLException {
+  public void testValidateUser() throws SQLException, ClassNotFoundException {
     User user = new User(0, "TestUser", "password");
     dao.createUser(user);
     Optional<User> validatedUser = dao.validateUser("TestUser", "password");
@@ -118,21 +110,21 @@ public class DaoTest {
   }
 
   @Test
-  public void testGetBookById() throws SQLException, BookNotFoundException {
+  public void testGetBookById() throws SQLException, BookNotFoundException, ClassNotFoundException {
     Optional<Book> book = dao.getBookById(1);
     assertTrue(book.isPresent());
     assertEquals("Thus Spoke Zarathustra", book.get().getTitle());
   }
 
   @Test
-  public void testAddBook() throws SQLException {
+  public void testAddBook() throws SQLException, ClassNotFoundException {
     Book book = new Book("Test Book", "Test Author", 100);
     boolean result = dao.addBook(book);
     assertTrue(result);
   }
 
   @Test
-  public void testUpdateBook() throws SQLException, BookNotFoundException {
+  public void testUpdateBook() throws SQLException, BookNotFoundException, ClassNotFoundException {
     String updatedTitle = "Thus Spake Zarathustra";
     Book book = new Book(1, updatedTitle, "Friedrich Nietzsche", 200);
     boolean result = dao.updateBook(book);
@@ -144,7 +136,7 @@ public class DaoTest {
   }
 
   @Test
-  public void testDeleteBook() throws SQLException, BookNotFoundException {
+  public void testDeleteBook() throws SQLException, BookNotFoundException, ClassNotFoundException {
     Book book = dao.getBookById(1).get();
     boolean result = dao.deleteBook(book);
     assertTrue(result);
@@ -159,15 +151,15 @@ public class DaoTest {
     Book book2 = new Book(2, "The Republic", "Plato", 416);
     try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
       stmt.executeUpdate("insert into users (name, password) values ('TestUser', 'password')");
-      stmt.executeUpdate("insert into trackers (user_id, book_id, progress) values (1, 1, 3)");
-      stmt.executeUpdate("insert into trackers (user_id, book_id, progress) values (1, 2, 3)");
+      stmt.executeUpdate("insert into trackers (user_id, book_id, progress, rating) values (1, 1, 3, null)");
+      stmt.executeUpdate("insert into trackers (user_id, book_id, progress, rating) values (1, 2, 3, null)");
     } catch (SQLException e) {
       throw new RuntimeException("Error setting up test environment", e);
     }
     List<Tracker> progress = dao.getUserProgress(user);
     List<Tracker> expectedProgress = List.of(
-        new Tracker(book1, 3),
-        new Tracker(book2, 3));
+        new Tracker(book1, 3, 0),
+        new Tracker(book2, 3, 0));
     assertEquals(expectedProgress.get(0).getProgress(), progress.get(0).getProgress());
     assertEquals(expectedProgress.get(1).getProgress(), progress.get(1).getProgress());
   }
@@ -183,7 +175,7 @@ public class DaoTest {
     } catch (SQLException e) {
       throw new RuntimeException("Error setting up test environment", e);
     }
-    Integer progress = dao.getUserProgress(user, book).get();
+    Integer progress = dao.getUserProgress(user, book).get().getProgress();
     assertEquals(5, progress.intValue());
   }
 
@@ -196,15 +188,15 @@ public class DaoTest {
     try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
       stmt.executeUpdate("insert into users (name, password) values ('User1', 'password1')");
       stmt.executeUpdate("insert into users (name, password) values ('User2', 'password2')");
-      stmt.executeUpdate("insert into trackers (user_id, book_id, progress) values (1, 1, 5)");
-      stmt.executeUpdate("insert into trackers (user_id, book_id, progress) values (2, 1, 3)");
+      stmt.executeUpdate("insert into trackers (user_id, book_id, progress, rating) values (1, 1, 5, null)");
+      stmt.executeUpdate("insert into trackers (user_id, book_id, progress, rating) values (2, 1, 3, null)");
     } catch (SQLException e) {
       throw new RuntimeException("Error setting up test environment", e);
     }
-    Map<User, Integer> progress = dao.getAllUsersProgress(book);
-    Map<User, Integer> expectedProgress = Map.of(
-        user1, 5,
-        user2, 3);
+    List<UserProgress> progress = dao.getAllUsersProgress(book);
+    List<UserProgress> expectedProgress = List.of(
+        new UserProgress(user1.getName(), 5, 0),
+        new UserProgress(user2.getName(), 3, 0));
     assertEquals(expectedProgress, progress);
   }
 
@@ -220,13 +212,13 @@ public class DaoTest {
       throw new RuntimeException("Error setting up test environment", e);
     }
     dao.updateProgress(user, book, 5);
-    Optional<Integer> progress = dao.getUserProgress(user, book);
-    assertTrue(progress.isPresent());
-    assertEquals(5, progress.get().intValue());
+    Optional<Tracker> progressTracker = dao.getUserProgress(user, book);
+    assertTrue(progressTracker.isPresent());
+    assertEquals(5, progressTracker.get().getProgress());
   }
 
   @Test
-  public void testRateBook() throws SQLException, UserNotFoundException, BookNotFoundException {
+  public void testRateBook() throws SQLException, UserNotFoundException, BookNotFoundException, ClassNotFoundException {
     User user = new User(1, 0, "TestUser", "password");
     Book book = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
     dao.createUser(user);
@@ -238,7 +230,7 @@ public class DaoTest {
   }
 
   @Test
-  public void testGetAverageRating() throws SQLException, BookNotFoundException, UserNotFoundException {
+  public void testGetAverageRating() throws SQLException, BookNotFoundException, UserNotFoundException, ClassNotFoundException {
     Book book = dao.getBookById(1).get();
     User user1 = new User(1, 0, "User1", "password");
     User user2 = new User(2, 0, "User2", "password");
