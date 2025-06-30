@@ -261,6 +261,11 @@ public class Controller {
     List<Tracker> completedTrackers = getUserTrackers().stream()
         .filter(tracker -> tracker.getProgress() == tracker.getBook().getNumPages())
         .collect(Collectors.toList());
+    if (completedTrackers.isEmpty()) {
+      view.printMessage("You have no completed books to rate.");
+      showMainMenu();
+      return;
+    }
     view.printMessage("\n\nSelect a book to rate:");
     completedTrackers.forEach(tracker -> {
       view.printMessage("Book: " + tracker.getBook().getTitle() + ", Author: " + tracker.getBook().getAuthor());
