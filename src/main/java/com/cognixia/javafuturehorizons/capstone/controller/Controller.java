@@ -68,7 +68,8 @@ public class Controller {
     view.printMessage("Welcome to the Tracker Application!");
     int userChoice = view.getUserMenuChoice(new String[] {
         "Login",
-        "Register"
+        "Register",
+        "Quit Application"
     });
     switch (userChoice) {
       case 1:
@@ -77,11 +78,19 @@ public class Controller {
       case 2:
         register();
         break;
+      case 3:
+        quitApplication();
+        break;
       default:
         view.printMessage("Invalid choice. Please try again.");
         welcome();
         break;
     }
+  }
+
+  private void quitApplication() {
+    view.printMessage("Thank you for using the Tracker Application. Goodbye!");
+    System.exit(0);
   }
 
   private void login() {
@@ -138,8 +147,7 @@ public class Controller {
         logout();
         break;
       case 2: 
-        view.printMessage("Thank you for using the Tracker Application. Goodbye!");
-        System.exit(0);
+        quitApplication();
         break;
       case 3:
         showTrackers();
