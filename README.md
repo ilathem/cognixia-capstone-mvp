@@ -22,7 +22,7 @@ https://kanbanflow.com/board/9E6Qdto
 - [x] At least 10 options to track
 - [x] Create as a Maven project
 - [x] In progress items should show how far along you are
-- [ ] Admin can add, remove, and change topic information
+- [x] Admin can add, remove, and change topic information
 - [x] Users can view tracker reports for topic as a whole
 - [x] Have option to create account if user does not have one
 - [x] Have option to rate option 
