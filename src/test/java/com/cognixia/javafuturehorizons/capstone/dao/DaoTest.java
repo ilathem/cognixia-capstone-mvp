@@ -14,6 +14,8 @@ import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
@@ -32,35 +34,61 @@ public class DaoTest {
 
   @BeforeEach
   public void beforeEach() throws Exception {
+    String sql_data_statements = new String(
+        Files.readAllBytes(
+            Paths.get(
+                getClass().getClassLoader().getResource("test_data.sql").toURI())));
     try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
-      stmt.executeUpdate(
-          "INSERT INTO books (title, author, num_pages) VALUES ('Thus Spoke Zarathustra', 'Friedrich Nietzsche', 327)");
-      stmt.executeUpdate("INSERT INTO books (title, author, num_pages) VALUES ('The Republic', 'Plato', 416)");
-      stmt.executeUpdate(
-          "INSERT INTO books (title, author, num_pages) VALUES ('Nicomachean Ethics', 'Aristotle', 400)");
-      stmt.executeUpdate(
-          "INSERT INTO books (title, author, num_pages) VALUES ('Meditations on First Philosophy', 'René Descartes', 80)");
-      stmt.executeUpdate("INSERT INTO books (title, author, num_pages) VALUES ('Apology', 'Socrates', 40)");
-      stmt.executeUpdate(
-          "INSERT INTO books (title, author, num_pages) VALUES ('Beyond Good and Evil', 'Friedrich Nietzsche', 320)");
-      stmt.executeUpdate(
-          "INSERT INTO books (title, author, num_pages) VALUES ('Critique of Pure Reason', 'Immanuel Kant', 856)");
-      stmt.executeUpdate(
-          "INSERT INTO books (title, author, num_pages) VALUES ('Being and Time', 'Martin Heidegger', 589)");
-      stmt.executeUpdate("INSERT INTO books (title, author, num_pages) VALUES ('The Symposium', 'Plato', 80)");
-      stmt.executeUpdate(
-          "INSERT INTO books (title, author, num_pages) VALUES ('The Prince', 'Niccolò Machiavelli', 140)");
-      stmt.executeUpdate("INSERT INTO books (title, author, num_pages) VALUES ('Leviathan', 'Thomas Hobbes', 736)");
-      stmt.executeUpdate(
-          "INSERT INTO books (title, author, num_pages) VALUES ('The Social Contract', 'Jean-Jacques Rousseau', 192)");
-      stmt.executeUpdate(
-          "INSERT INTO books (title, author, num_pages) VALUES ('Tractatus Logico-Philosophicus', 'Ludwig Wittgenstein', 232)");
-      stmt.executeUpdate(
-          "INSERT INTO books (title, author, num_pages) VALUES ('Phenomenology of Spirit', 'G. W. F. Hegel', 640)");
-      stmt.executeUpdate("INSERT INTO books (title, author, num_pages) VALUES ('On Liberty', 'John Stuart Mill', 176)");
-    } catch (SQLException e) {
-      throw new RuntimeException("Error setting up test environment", e);
+      for (String sql : sql_data_statements.split(";")) {
+        if (!sql.trim().isEmpty()) {
+          stmt.executeUpdate(sql.trim());
+        }
+      }
     }
+    // try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
+    // stmt.executeUpdate(
+    // "INSERT INTO books (title, author, num_pages) VALUES ('Thus Spoke
+    // Zarathustra', 'Friedrich Nietzsche', 327)");
+    // stmt.executeUpdate("INSERT INTO books (title, author, num_pages) VALUES ('The
+    // Republic', 'Plato', 416)");
+    // stmt.executeUpdate(
+    // "INSERT INTO books (title, author, num_pages) VALUES ('Nicomachean Ethics',
+    // 'Aristotle', 400)");
+    // stmt.executeUpdate(
+    // "INSERT INTO books (title, author, num_pages) VALUES ('Meditations on First
+    // Philosophy', 'René Descartes', 80)");
+    // stmt.executeUpdate("INSERT INTO books (title, author, num_pages) VALUES
+    // ('Apology', 'Socrates', 40)");
+    // stmt.executeUpdate(
+    // "INSERT INTO books (title, author, num_pages) VALUES ('Beyond Good and Evil',
+    // 'Friedrich Nietzsche', 320)");
+    // stmt.executeUpdate(
+    // "INSERT INTO books (title, author, num_pages) VALUES ('Critique of Pure
+    // Reason', 'Immanuel Kant', 856)");
+    // stmt.executeUpdate(
+    // "INSERT INTO books (title, author, num_pages) VALUES ('Being and Time',
+    // 'Martin Heidegger', 589)");
+    // stmt.executeUpdate("INSERT INTO books (title, author, num_pages) VALUES ('The
+    // Symposium', 'Plato', 80)");
+    // stmt.executeUpdate(
+    // "INSERT INTO books (title, author, num_pages) VALUES ('The Prince', 'Niccolò
+    // Machiavelli', 140)");
+    // stmt.executeUpdate("INSERT INTO books (title, author, num_pages) VALUES
+    // ('Leviathan', 'Thomas Hobbes', 736)");
+    // stmt.executeUpdate(
+    // "INSERT INTO books (title, author, num_pages) VALUES ('The Social Contract',
+    // 'Jean-Jacques Rousseau', 192)");
+    // stmt.executeUpdate(
+    // "INSERT INTO books (title, author, num_pages) VALUES ('Tractatus
+    // Logico-Philosophicus', 'Ludwig Wittgenstein', 232)");
+    // stmt.executeUpdate(
+    // "INSERT INTO books (title, author, num_pages) VALUES ('Phenomenology of
+    // Spirit', 'G. W. F. Hegel', 640)");
+    // stmt.executeUpdate("INSERT INTO books (title, author, num_pages) VALUES ('On
+    // Liberty', 'John Stuart Mill', 176)");
+    // } catch (SQLException e) {
+    // throw new RuntimeException("Error setting up test environment", e);
+    // }
   }
 
   @AfterEach
@@ -93,11 +121,9 @@ public class DaoTest {
 
   @Test
   public void testGetUserById() throws SQLException, UserNotFoundException, ClassNotFoundException {
-    User user = new User(0, "TestUser", "password");
-    dao.createUser(user);
     Optional<User> retrievedUser = dao.getUserById(1);
     assertTrue(retrievedUser.isPresent());
-    assertEquals(user.getName(), retrievedUser.get().getName());
+    assertEquals("testuser1", retrievedUser.get().getName());
   }
 
   @Test
@@ -117,17 +143,20 @@ public class DaoTest {
   }
 
   @Test
-  public void testAddBook() throws SQLException, ClassNotFoundException {
+  public void testAddBook() throws SQLException, ClassNotFoundException, UserNotFoundException {
     Book book = new Book("Test Book", "Test Author", 100);
-    boolean result = dao.addBook(book);
+    User user = new User("admin", "admin");
+    boolean result = dao.addBook(user, book);
     assertTrue(result);
   }
 
   @Test
-  public void testUpdateBook() throws SQLException, BookNotFoundException, ClassNotFoundException {
+  public void testUpdateBook()
+      throws SQLException, BookNotFoundException, ClassNotFoundException, UserNotFoundException {
     String updatedTitle = "Thus Spake Zarathustra";
     Book book = new Book(1, updatedTitle, "Friedrich Nietzsche", 200);
-    boolean result = dao.updateBook(book);
+    User user = new User("admin", "admin");
+    boolean result = dao.updateBook(user, book);
     assertTrue(result);
 
     Optional<Book> updatedBook = dao.getBookById(1);
@@ -136,9 +165,11 @@ public class DaoTest {
   }
 
   @Test
-  public void testDeleteBook() throws SQLException, BookNotFoundException, ClassNotFoundException {
+  public void testDeleteBook()
+      throws SQLException, BookNotFoundException, ClassNotFoundException, UserNotFoundException {
     Book book = dao.getBookById(1).get();
-    boolean result = dao.deleteBook(book);
+    User user = new User("admin", "admin");
+    boolean result = dao.deleteBook(user, book);
     assertTrue(result);
     assertThrows(BookNotFoundException.class, () -> dao.getBookById(1));
   }
@@ -147,21 +178,9 @@ public class DaoTest {
   public void testGetUserProgressForAllBooks()
       throws SQLException, UserNotFoundException, BookNotFoundException, ClassNotFoundException {
     User user = new User(1, 0, "TestUser", "password");
-    Book book1 = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
-    Book book2 = new Book(2, "The Republic", "Plato", 416);
-    try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
-      stmt.executeUpdate("insert into users (name, password) values ('TestUser', 'password')");
-      stmt.executeUpdate("insert into trackers (user_id, book_id, progress, rating) values (1, 1, 3, null)");
-      stmt.executeUpdate("insert into trackers (user_id, book_id, progress, rating) values (1, 2, 3, null)");
-    } catch (SQLException e) {
-      throw new RuntimeException("Error setting up test environment", e);
-    }
     List<Tracker> progress = dao.getUserProgress(user);
-    List<Tracker> expectedProgress = List.of(
-        new Tracker(book1, 3, 0),
-        new Tracker(book2, 3, 0));
-    assertEquals(expectedProgress.get(0).getProgress(), progress.get(0).getProgress());
-    assertEquals(expectedProgress.get(1).getProgress(), progress.get(1).getProgress());
+    assertEquals(10, progress.get(0).getProgress());
+    assertEquals(20, progress.get(1).getProgress());
   }
 
   @Test
@@ -169,35 +188,20 @@ public class DaoTest {
       throws ClassNotFoundException, SQLException, UserNotFoundException, BookNotFoundException {
     User user = new User(1, 0, "TestUser", "password");
     Book book = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
-    try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
-      stmt.executeUpdate("insert into users (name, password) values ('TestUser', 'password')");
-      stmt.executeUpdate("insert into trackers (user_id, book_id, progress) values (1, 1, 5)");
-    } catch (SQLException e) {
-      throw new RuntimeException("Error setting up test environment", e);
-    }
     Integer progress = dao.getUserProgress(user, book).get().getProgress();
-    assertEquals(5, progress.intValue());
+    assertEquals(10, progress.intValue());
   }
 
   @Test
   public void testGetAllUsersProgressForBook()
       throws SQLException, BookNotFoundException, UserNotFoundException, ClassNotFoundException {
     Book book = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
-    User user1 = new User(1, 0, "User1", "password1");
-    User user2 = new User(2, 0, "User2", "password2");
-    try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
-      stmt.executeUpdate("insert into users (name, password) values ('User1', 'password1')");
-      stmt.executeUpdate("insert into users (name, password) values ('User2', 'password2')");
-      stmt.executeUpdate("insert into trackers (user_id, book_id, progress, rating) values (1, 1, 5, null)");
-      stmt.executeUpdate("insert into trackers (user_id, book_id, progress, rating) values (2, 1, 3, null)");
-    } catch (SQLException e) {
-      throw new RuntimeException("Error setting up test environment", e);
-    }
     List<UserProgress> progress = dao.getAllUsersProgress(book);
-    List<UserProgress> expectedProgress = List.of(
-        new UserProgress(user1.getName(), 5, 0),
-        new UserProgress(user2.getName(), 3, 0));
-    assertEquals(expectedProgress, progress);
+    assertEquals(10, progress.get(0).getProgress());
+    assertEquals(50, progress.get(1).getProgress());
+    assertEquals(120, progress.get(2).getProgress());
+    assertEquals(200, progress.get(3).getProgress());
+    assertEquals(327, progress.get(4).getProgress());
   }
 
   @Test
@@ -205,12 +209,6 @@ public class DaoTest {
       throws SQLException, UserNotFoundException, BookNotFoundException, ClassNotFoundException {
     User user = new User(1, 0, "TestUser", "password");
     Book book = new Book(1, "Thus Spoke Zarathustra", "Friedrich Nietzsche", 327);
-    try (Statement stmt = ConnectionManager.getConnection().createStatement()) {
-      stmt.executeUpdate("insert into users (name, password) values ('TestUser', 'password')");
-      stmt.executeUpdate("insert into trackers (user_id, book_id, progress) values (1, 1, 0)");
-    } catch (SQLException e) {
-      throw new RuntimeException("Error setting up test environment", e);
-    }
     dao.updateProgress(user, book, 5);
     Optional<Tracker> progressTracker = dao.getUserProgress(user, book);
     assertTrue(progressTracker.isPresent());
@@ -230,7 +228,8 @@ public class DaoTest {
   }
 
   @Test
-  public void testGetAverageRating() throws SQLException, BookNotFoundException, UserNotFoundException, ClassNotFoundException {
+  public void testGetAverageRating()
+      throws SQLException, BookNotFoundException, UserNotFoundException, ClassNotFoundException {
     Book book = dao.getBookById(1).get();
     User user1 = new User(1, 0, "User1", "password");
     User user2 = new User(2, 0, "User2", "password");
