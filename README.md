@@ -27,7 +27,7 @@ https://kanbanflow.com/board/9E6Qdto
 - [x] Have option to create account if user does not have one
 - [x] Have option to rate option 
 - [x] Have way to show average rating across all users for one topic
-- [ ] Create simple UI to show the status of a user's tracked items
+- [x] Create simple UI to show the status of a user's tracked items
 
 ## My own additions: 
 

@@ -150,7 +150,7 @@ public class Controller {
         quitApplication();
         break;
       case 3:
-        showTrackers();
+        showPrettyTrackers();
         break;
       case 4:
         updateTrackerProgress();
@@ -362,6 +362,69 @@ public class Controller {
       view.printMessage("You have no trackers, add to trackers to see progress here.");
     }
     showMainMenu();
+  }
+
+  private void showPrettyTrackers() {
+    view.printMessage("\n===============================");
+    view.printMessage("   Your Tracked Books Status");
+    view.printMessage("===============================\n");
+
+    List<Tracker> allTrackers = getUserTrackers();
+    List<Tracker> completedTrackers = allTrackers.stream()
+        .filter(tracker -> tracker.getProgress() == tracker.getBook().getNumPages())
+        .collect(Collectors.toList());
+    List<Tracker> inProgressTrackers = allTrackers.stream()
+        .filter(tracker -> tracker.getProgress() < tracker.getBook().getNumPages())
+        .collect(Collectors.toList());
+    List<Book> allBooks = getAllBooks();
+    List<Book> untrackedBooks = allBooks.stream()
+        .filter(book -> allTrackers.stream().noneMatch(tracker -> tracker.getBook().getBookId() == book.getBookId()))
+        .collect(Collectors.toList());
+
+    if (!completedTrackers.isEmpty()) {
+      view.printMessage("Completed Books:");
+      completedTrackers.forEach(t -> {
+        view.printMessage("  \u2714 " + t.getBook().getTitle() + String.format("%1$-25s", "") + "| Rating: " + (t.getRating() > 0 ? t.getRating() : "Not Rated"));
+      });
+      view.printMessage("");
+    }
+    if (!inProgressTrackers.isEmpty()) {
+      view.printMessage("Books In Progress:");
+      inProgressTrackers.forEach(t -> {
+        int total = t.getBook().getNumPages();
+        int progress = t.getProgress();
+        int percent = (int) ((progress * 100.0) / total);
+        String bar = getProgressBar(percent);
+        view.printMessage(String.format("  \u2794 %s | Progress: %d / %d pages %s", t.getBook().getTitle(), progress, total, bar));
+      });
+      view.printMessage("");
+    }
+    if (!untrackedBooks.isEmpty()) {
+      view.printMessage("Not Started:");
+      untrackedBooks.forEach(book -> {
+        view.printMessage("  \u25CB " + book.getTitle());
+      });
+      view.printMessage("");
+    }
+    if (allTrackers.isEmpty()) {
+      view.printMessage("You have no trackers, add to trackers to see progress here.");
+    }
+    view.printMessage("-------------------------------");
+    view.printMessage("Legend: \u2714 = Completed, \u2794 = In Progress, \u25CB = Not Started");
+    showMainMenu();
+  }
+
+  // Helper for ASCII progress bar
+  private String getProgressBar(int percent) {
+    int totalBars = 20;
+    int filledBars = (int) (percent / (100.0 / totalBars));
+    StringBuilder bar = new StringBuilder("[");
+    for (int i = 0; i < totalBars; i++) {
+      if (i < filledBars) bar.append('#');
+      else bar.append('-');
+    }
+    bar.append("] ").append(percent).append("%");
+    return bar.toString();
   }
 
   private List<Tracker> getUserTrackers() {
