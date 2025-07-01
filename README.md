@@ -1,17 +1,20 @@
 # Cognixia Capstone Project
+
 An MVC Java CLI program that uses JDBC via a DAO to connect to a MySQL server to track users progress on different books.
 
 ## How to use:
+
 1. Prerequisites: `JDK`, `MySql`, make sure MySQL server is running
 2. Use `tracker_db.sql` to create and populate the MySQL server database
 3. Configure `ConnectionManager.java` to connect to your port, with the correct username and password
-4. Compile & Run the main method in `App.java` to start the application, or run `mvn build` to compile, then `mvn exec:java` to run it
+4. Compile & Run the main method in `App.java` to start the application, or run `mvn compile` to compile, then `mvn exec:java` to run it
 
 ## ER Diagram
 
 ![Entity Relationship Diagram](./er_diagram.png)
 
 ## Kanban Board:
+
 https://kanbanflow.com/board/9E6Qdto
 
 The kanban board:
@@ -40,11 +43,11 @@ The time log is located at `./kanban_time_tracker.pdf`
 - [x] Admin can add, remove, and change topic information
 - [x] Users can view tracker reports for topic as a whole
 - [x] Have option to create account if user does not have one
-- [x] Have option to rate option 
+- [x] Have option to rate option
 - [x] Have way to show average rating across all users for one topic
 - [x] Create simple UI to show the status of a user's tracked items
 
-## My own additions: 
+## My own additions:
 
 - MVC Architecture
 - Unit testing for the DAO implementation
@@ -55,8 +58,8 @@ The time log is located at `./kanban_time_tracker.pdf`
 Next steps for this project could involve...
 
 - Hosting the backend (DAO) on a Java server (AWS)
-- Hosting the database online 
-- Hosting the Controller + View on a Web GUI frontend 
+- Hosting the database online
+- Hosting the Controller + View on a Web GUI frontend
 
 Some ideas for next steps in terms of technologies...
 
