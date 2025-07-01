@@ -33,3 +33,18 @@ https://kanbanflow.com/board/9E6Qdto
 
 - MVC Architecture
 - Unit testing for the DAO implementation
+- Mimics server communication by converting data to JSON format and uses Request/Response objects
+
+## Next Steps:
+
+Next steps for this project could involve...
+
+- Hosting the backend (DAO) on a Java server (AWS)
+- Hosting the database online 
+- Hosting the Controller + View on a Web GUI frontend 
+
+Some ideas for next steps in terms of technologies...
+
+- Amazon EC2 for the Java server, using Spring and Hibernate with API Endpoints
+- CockroachDB for the hosted SQL server (because it has a free tier)
+- React frontend hosted on Amplify
