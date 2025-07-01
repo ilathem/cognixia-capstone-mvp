@@ -1,8 +1,17 @@
 # cognixia-capstone-mvp
 Minimum Viable Product for the Cognixia Capstone Project
 
+## ER Diagram
+
+![Entity Relationship Diagram](./er_diagram.png)
+
 ## Kanban Board:
 https://kanbanflow.com/board/9E6Qdto
+
+The kanban board:
+![kanban board](./kanban_board.png)
+
+The time log is located at `./kanban_time_tracker.pdf`
 
 ## Requirements:
 
