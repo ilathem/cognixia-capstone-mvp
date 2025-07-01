@@ -5,7 +5,7 @@ An MVC Java CLI program that uses JDBC via a DAO to connect to a MySQL server to
 1. Prerequisites: `JDK`, `MySql`, make sure MySQL server is running
 2. Use `tracker_db.sql` to create and populate the MySQL server database
 3. Configure `ConnectionManager.java` to connect to your port, with the correct username and password
-4. Compile & Run the main method is `App.java` to start the application
+4. Compile & Run the main method in `App.java` to start the application
 
 ## ER Diagram
 
