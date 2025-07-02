@@ -9,6 +9,21 @@ An MVC Java CLI program that uses JDBC via a DAO to connect to a MySQL server to
 3. Configure `ConnectionManager.java` to connect to your port, with the correct username and password
 4. Compile & Run the main method in `App.java` to start the application, or run `mvn compile` to compile, then `mvn exec:java` to run it
 
+## Usage Information
+
+`tracker_db.sql` populates the database with test users, books, and 
+trackers for each of those users, the user names and passwords are (in the format `username` `password`): 
+
+- testuser1 password1
+- testuser2 password2
+- testuser3 password3
+- testuser4 password4
+- testuser5 password5
+- admin admin
+
+Logging in as admin will show the admin menu, which allows the user to add, 
+remove, and update books in the database.
+
 ## ER Diagram
 
 ![Entity Relationship Diagram](./er_diagram.png)
